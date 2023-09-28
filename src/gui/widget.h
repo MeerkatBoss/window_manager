@@ -16,13 +16,17 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "event/event.h"
+#include "event/event_handler.h"
+
+#include "event/keys.h"
 #include "math/transform.h"
 #include "math/vec.h"
 
 namespace gui
 {
 
-class Widget
+class Widget : public event::EventHandler
 {
 public:
   Widget(const math::Transform& transform = math::Transform()) :

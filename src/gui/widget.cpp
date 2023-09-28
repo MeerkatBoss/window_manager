@@ -1,6 +1,8 @@
 #include "gui/widget.h"
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Mouse.hpp>
+#include "event/event.h"
+#include "event/keys.h"
 #include "math/transform.h"
 
 namespace gui
