@@ -10,6 +10,7 @@
 #include "event/event.h"
 #include "event/event_emitter.h"
 #include "gui/button.h"
+#include "gui/window.h"
 #include "math/transform.h"
 #include "gui/widget.h"
 
@@ -44,7 +45,8 @@ void App::setupUI()
   using math::Point;
   using math::Transform;
 
-  m_widgetTree = new gui::Button(g_debugController, m_buttonTexture);
+  // m_widgetTree = new gui::Button(g_debugController, m_buttonTexture);
+  m_widgetTree = new gui::Window(Point(-1, -0.5), Vec(0.8, 0.6));
 }
 
 App::~App()
