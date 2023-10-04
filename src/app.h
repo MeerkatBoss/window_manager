@@ -19,9 +19,6 @@
 class App
 {
 public:
-  static constexpr size_t windowWidth  = 1000;
-  static constexpr size_t windowHeight = 1000;
-
   App();
   ~App();
 

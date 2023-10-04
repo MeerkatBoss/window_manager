@@ -10,6 +10,7 @@
 #include "event/event.h"
 #include "event/event_emitter.h"
 #include "gui/button.h"
+#include "gui/frame.h"
 #include "gui/window.h"
 #include "math/transform.h"
 #include "gui/widget.h"
@@ -46,7 +47,10 @@ void App::setupUI()
   using math::Transform;
 
   // m_widgetTree = new gui::Button(g_debugController, m_buttonTexture);
-  m_widgetTree = new gui::Window(Point(-1, -0.5), Vec(0.8, 0.6));
+  gui::Window* window = new gui::Window(Point(), Vec(1, 1));
+  gui::Frame* frame = new gui::Frame(0.05, window);
+
+  m_widgetTree = frame;
 }
 
 App::~App()
@@ -68,19 +72,26 @@ void App::runMainLoop()
   sf::Event event;
 
   math::TransformStack stack;
+  event::EventEmitter emitter(stack);
+
   const math::Vec win_offset(m_window.getSize().x / 2,
                              m_window.getSize().y / 2);
   const double min_offset = win_offset.x < win_offset.y
                                 ? win_offset.x
                                 : win_offset.y;
   const math::Vec win_scale(min_offset, min_offset);
-  
+
   stack.enterCoordSystem(math::Transform(win_offset, win_scale));
 
-  event::EventEmitter emitter(stack);
-
+  size_t counter = 0;
   while (m_window.isOpen())
   {
+
+    if (counter < 10)
+    {
+      printf("window: %ux%u\n", m_window.getSize().x, m_window.getSize().y);
+      ++counter;
+    }
     while (m_window.pollEvent(event))
     {
       if (event.type == sf::Event::Closed)
@@ -109,6 +120,7 @@ void App::runMainLoop()
 
     m_widgetTree->draw(m_window, stack);
     m_window.display();
+
   }
 
   stack.exitCoordSystem();

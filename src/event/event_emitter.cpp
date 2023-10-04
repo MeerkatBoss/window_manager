@@ -46,7 +46,7 @@ Event* EventEmitter::emitEvent(const sf::Event& sf_event)
   {
     const sf::Event::MouseMoveEvent& sf_mouse_event = sf_event.mouseMove;
     const math::Vec position(sf_mouse_event.x, sf_mouse_event.y);
-    
+
     return new MouseMoveEvent(position, m_stack);
   }
 

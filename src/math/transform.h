@@ -73,6 +73,14 @@ public:
   const Point& getPosition() const { return m_position; }
   const Vec&   getScale()    const { return m_scale; }
 
+  void move(const Vec& delta) { m_position += delta; }
+
+  void scale(const Vec& scale)
+  {
+    m_scale.x *= scale.x;
+    m_scale.y *= scale.y;
+  }
+
 private:
   Vec m_position;
   Vec m_scale;
