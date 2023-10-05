@@ -10,6 +10,7 @@
 #include "event/event.h"
 #include "event/event_emitter.h"
 #include "gui/button.h"
+#include "gui/canvas.h"
 #include "gui/frame.h"
 #include "gui/window.h"
 #include "math/transform.h"
@@ -47,8 +48,9 @@ void App::setupUI()
   using math::Transform;
 
   // m_widgetTree = new gui::Button(g_debugController, m_buttonTexture);
-  gui::Window* window = new gui::Window(Point(), Vec(1, 1));
-  gui::Frame* frame = new gui::Frame(0.05, window);
+  // gui::Window* window = new gui::Window(Point(), Vec(1, 1));
+  gui::Canvas* canvas = new gui::Canvas(10, 700, 400);
+  gui::Frame* frame = new gui::Frame(0.05, canvas);
 
   m_widgetTree = frame;
 }
@@ -83,15 +85,8 @@ void App::runMainLoop()
 
   stack.enterCoordSystem(math::Transform(win_offset, win_scale));
 
-  size_t counter = 0;
   while (m_window.isOpen())
   {
-
-    if (counter < 10)
-    {
-      printf("window: %ux%u\n", m_window.getSize().x, m_window.getSize().y);
-      ++counter;
-    }
     while (m_window.pollEvent(event))
     {
       if (event.type == sf::Event::Closed)

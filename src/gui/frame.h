@@ -12,6 +12,7 @@
 #ifndef __GUI_FRAME_H
 #define __GUI_FRAME_H
 
+#include "event/event.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/vec.h"
@@ -40,6 +41,13 @@ public:
 
   virtual bool onEvent(const event::Event& event) override
   {
+    // Additional logic required here
+    if (event.getEventType() == event::EventType::MouseMove)
+    {
+      return Widget::onEvent(event);
+    }
+
+    // Forward transparently
     bool handled = m_widget->onEvent(event);
     if (handled) return true;
 

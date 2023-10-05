@@ -27,6 +27,16 @@ bool Frame::onMouseReleased(event::MouseKey mouse_button)
 bool Frame::onMouseMoved(const math::Vec& position,
                           math::TransformStack& transform_stack)
 {
+
+  transform_stack.enterCoordSystem(transform());
+  const math::Vec local_position = transform_stack.getCoordSystem()
+                                      .restorePoint(position);
+  // Correctly forward mouse event here
+  bool handled = m_widget->onMouseMoved(position, transform_stack);
+  transform_stack.exitCoordSystem();
+
+  if (handled) { return true; }
+
   const math::Vec parent_position = transform_stack.getCoordSystem()
                                     .restorePoint(position);
   if (m_captured)
@@ -35,11 +45,6 @@ bool Frame::onMouseMoved(const math::Vec& position,
     m_lastPos = parent_position;
     return true;
   }
-
-  transform_stack.enterCoordSystem(transform());
-  const math::Vec local_position = transform_stack.getCoordSystem()
-                                      .restorePoint(position);
-  transform_stack.exitCoordSystem();
 
   m_hovered = (-0.5 < local_position.x && local_position.x < 0.5 &&
                -0.5 < local_position.y && local_position.y < 0.5);
