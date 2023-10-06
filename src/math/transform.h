@@ -73,6 +73,9 @@ public:
   const Point& getPosition() const { return m_position; }
   const Vec&   getScale()    const { return m_scale; }
 
+  void setPosition(const math::Point& position) { m_position = position; }
+  void setScale   (const math::Vec&   scale)    { m_scale    = scale;    }
+
   void move(const Vec& delta) { m_position += delta; }
 
   void scale(const Vec& scale)

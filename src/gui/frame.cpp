@@ -6,7 +6,13 @@ namespace gui
 
 bool Frame::onMousePressed(event::MouseKey mouse_button)
 {
-  if (mouse_button != event::MouseKey::Left || !m_hovered)
+  bool handled = Base::onMousePressed(mouse_button);
+  if (handled)
+  {
+    return true;
+  }
+
+  if (mouse_button != event::MouseKey::Left || !isFocused())
     return false;
 
   m_captured = true;
@@ -16,6 +22,7 @@ bool Frame::onMousePressed(event::MouseKey mouse_button)
 
 bool Frame::onMouseReleased(event::MouseKey mouse_button)
 {
+  Base::onMouseReleased(mouse_button);
   if (mouse_button != event::MouseKey::Left || !m_captured)
     return false;
 
@@ -27,15 +34,7 @@ bool Frame::onMouseReleased(event::MouseKey mouse_button)
 bool Frame::onMouseMoved(const math::Vec& position,
                           math::TransformStack& transform_stack)
 {
-
-  transform_stack.enterCoordSystem(transform());
-  const math::Vec local_position = transform_stack.getCoordSystem()
-                                      .restorePoint(position);
-  // Correctly forward mouse event here
-  bool handled = m_widget->onMouseMoved(position, transform_stack);
-  transform_stack.exitCoordSystem();
-
-  if (handled) { return true; }
+  Base::onMouseMoved(position, transform_stack);
 
   const math::Vec parent_position = transform_stack.getCoordSystem()
                                     .restorePoint(position);
@@ -46,11 +45,9 @@ bool Frame::onMouseMoved(const math::Vec& position,
     return true;
   }
 
-  m_hovered = (-0.5 < local_position.x && local_position.x < 0.5 &&
-               -0.5 < local_position.y && local_position.y < 0.5);
   m_lastPos = parent_position;
 
-  return m_hovered;
+  return isFocused();;
 }
 
 void Frame::draw(sf::RenderTarget& draw_target,
@@ -66,7 +63,7 @@ void Frame::draw(sf::RenderTarget& draw_target,
   rect.setFillColor(sf::Color::Blue);
 
   draw_target.draw(rect);
-  m_widget->draw(draw_target, transform_stack);
+  getDecorated()->draw(draw_target, transform_stack);
 
   transform_stack.exitCoordSystem();
 }

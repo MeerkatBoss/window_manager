@@ -14,19 +14,21 @@
 
 #include "event/event.h"
 #include "gui/widget.h"
+#include "gui/widget_decorator.h"
 #include "math/transform.h"
 #include "math/vec.h"
 namespace gui
 {
 
-class Frame : public Widget
+class Frame : public WidgetDecorator
 {
+using Base = WidgetDecorator;
 public:
   Frame(double width, Widget* widget) :
-    Widget(math::Transform(
+    WidgetDecorator(math::Transform(
           widget->transform().getPosition(),
-          widget->transform().getScale() + 2*math::Vec(width, width))),
-    m_widget(widget),
+          widget->transform().getScale() + 2*math::Vec(width, width)),
+        widget),
     m_captured(false),
     m_lastPos()
   {
@@ -34,24 +36,7 @@ public:
     const math::Vec local_scale(
         orig_scale.x / (orig_scale.x + 2*width),
         orig_scale.y / (orig_scale.y + 2*width));
-    m_widget->transform() = math::Transform(math::Point(), local_scale);
-  }
-
-  virtual ~Frame() override { delete m_widget; }
-
-  virtual bool onEvent(const event::Event& event) override
-  {
-    // Additional logic required here
-    if (event.getEventType() == event::EventType::MouseMove)
-    {
-      return Widget::onEvent(event);
-    }
-
-    // Forward transparently
-    bool handled = m_widget->onEvent(event);
-    if (handled) return true;
-
-    return Widget::onEvent(event);
+    widget->transform() = math::Transform(math::Point(), local_scale);
   }
 
   virtual bool onMousePressed(event::MouseKey mouse_button) override;
@@ -64,8 +49,6 @@ public:
                     math::TransformStack& transform_stack) override;
   
 private:
-  Widget*   m_widget;
-  bool      m_hovered;
   bool      m_captured;
   math::Vec m_lastPos;
 };

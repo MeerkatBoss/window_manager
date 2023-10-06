@@ -1,5 +1,7 @@
 #include "app.h"
 
+#include <SFML/Graphics/RenderTexture.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Window/WindowStyle.hpp>
 #include <cstdio>
@@ -12,17 +14,29 @@
 #include "gui/button.h"
 #include "gui/canvas.h"
 #include "gui/frame.h"
+#include "gui/slider.h"
 #include "gui/window.h"
 #include "math/transform.h"
 #include "gui/widget.h"
+#include "gui/scrollbar.h"
 
-class DebugController : public gui::ButtonController
+class DebugController : public gui::ButtonController,
+                        public gui::SliderController
 {
   virtual void onClick(size_t button_id) override
   {
     printf("Clicked %zu!\n", button_id);
     return;
   }
+
+  virtual void setValue(size_t slider_id, const math::Vec& val) override
+  {
+    printf("%zu = (%lg, %lg)\n", slider_id, val.x, val.y);
+    m_sliderVal = val;
+  }
+  virtual math::Vec getValue(size_t) override { return m_sliderVal; }
+private:
+  math::Vec m_sliderVal;
 };
 
 static DebugController g_debugController;
@@ -47,10 +61,17 @@ void App::setupUI()
   using math::Point;
   using math::Transform;
 
-  // m_widgetTree = new gui::Button(g_debugController, m_buttonTexture);
-  // gui::Window* window = new gui::Window(Point(), Vec(1, 1));
-  gui::Canvas* canvas = new gui::Canvas(10, 700, 400);
-  gui::Frame* frame = new gui::Frame(0.05, canvas);
+  // gui::Button* button = new gui::Button(g_debugController, m_buttonTexture);
+  gui::Canvas* canvas = new gui::Canvas(10, 800, 800,
+                                        Point(), Vec(2, 2));
+  gui::Scrollbar* scrollbar = new gui::Scrollbar(Transform(), 0.05,
+                                                 canvas, m_buttonTexture);
+  gui::Frame* frame = new gui::Frame(0.07, scrollbar);
+
+  /*
+  gui::Slider* slider = new gui::Slider(g_debugController, Transform(),
+                                        Vec(1, 0.1));
+                                        */
 
   m_widgetTree = frame;
 }
@@ -75,6 +96,8 @@ void App::runMainLoop()
 
   math::TransformStack stack;
   event::EventEmitter emitter(stack);
+  sf::RenderTexture texture;
+  texture.create(m_window.getSize().x, m_window.getSize().y);
 
   const math::Vec win_offset(m_window.getSize().x / 2,
                              m_window.getSize().y / 2);
@@ -104,6 +127,7 @@ void App::runMainLoop()
         }
       }
     }
+
     if (!m_window.isOpen())
     {
       break;
@@ -114,6 +138,7 @@ void App::runMainLoop()
     m_window.clear(sf::Color(128, 128, 128));
 
     m_widgetTree->draw(m_window, stack);
+
     m_window.display();
 
   }
