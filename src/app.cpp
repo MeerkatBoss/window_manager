@@ -66,7 +66,7 @@ void App::setupUI()
                                         Point(), Vec(2, 2));
   gui::Scrollbar* scrollbar = new gui::Scrollbar(Transform(), 0.05,
                                                  canvas, m_buttonTexture);
-  gui::Frame* frame = new gui::Frame(0.07, scrollbar);
+  gui::Frame* frame = new gui::Frame(0.07, scrollbar, m_buttonTexture);
 
   /*
   gui::Slider* slider = new gui::Slider(g_debugController, Transform(),
