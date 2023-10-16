@@ -13,11 +13,6 @@ bool Frame::onMousePressed(event::MouseKey mouse_button)
     return true;
   }
 
-  if (m_resizeButton.onMousePressed(mouse_button))
-  {
-    return true;
-  }
-
   if (mouse_button != event::MouseKey::Left || !isFocused())
     return false;
 
@@ -29,7 +24,6 @@ bool Frame::onMousePressed(event::MouseKey mouse_button)
 bool Frame::onMouseReleased(event::MouseKey mouse_button)
 {
   bool handled = Base::onMouseReleased(mouse_button);
-  handled |= m_resizeButton.onMouseReleased(mouse_button);
 
   if (mouse_button != event::MouseKey::Left || !m_moving)
     return handled;
@@ -45,8 +39,6 @@ bool Frame::onMouseMoved(const math::Vec& position,
   bool handled = Base::onMouseMoved(position, transform_stack);
   
   transform_stack.enterCoordSystem(transform());
-  handled |= m_resizeButton.onMouseMoved(position, transform_stack);
-
   const math::Vec local_position = transform_stack.getCoordSystem()
                                     .restorePoint(position);
 
@@ -98,9 +90,9 @@ void Frame::draw(sf::RenderTarget& draw_target,
   rect.setFillColor(sf::Color::Blue);
 
   draw_target.draw(rect);
-  getDecorated()->draw(draw_target, transform_stack);
-
   transform_stack.exitCoordSystem();
+
+  Base::draw(draw_target, transform_stack);
 }
 
 } // namespace gui

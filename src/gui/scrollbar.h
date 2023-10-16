@@ -19,7 +19,7 @@
 #include "gui/button.h"
 #include "gui/slider.h"
 #include "gui/widget.h"
-#include "gui/widget_decorator.h"
+#include "gui/widget_container.h"
 #include "gui/widget_view.h"
 #include "math/transform.h"
 #include "math/vec.h"
@@ -27,109 +27,84 @@
 namespace gui
 {
 
-class Scrollbar : public WidgetDecorator, private ButtonController,
+class Scrollbar : public WidgetContainer, private ButtonController,
                                           private SliderController
 {
-using Base = WidgetDecorator;
+using Base = WidgetContainer;
 public:
   Scrollbar(const math::Transform& transform,
             double scroll_bar_width,
             Widget* widget, 
             const sf::Texture& button_texture) :
-    WidgetDecorator(transform, new WidgetView(widget, transform.getPosition(),
-                                                      transform.getScale())),
+    WidgetContainer(transform),
     m_localWidth(scroll_bar_width / transform.getScale().x,
                  scroll_bar_width / transform.getScale().y),
-    m_view(static_cast<WidgetView*>(getDecorated())),
-    m_buttonUp(*this, button_texture,
-               math::Point( .5 - m_localWidth.x/2,
-                           -.5 + m_localWidth.y/2),
-               m_localWidth),
-    m_buttonDown(*this, button_texture,
+    m_view(new WidgetView(widget, -m_localWidth/2, transform.getScale())),
+    m_offset(0, 0)
+  {
+    m_view->transform().scale(
+        math::Vec(1 / (1 + m_localWidth.x),
+                  1 / (1 + m_localWidth.y)));
+    Button* up = new Button(*this, button_texture,
+                            math::Point( .5 - m_localWidth.x/2,
+                                        -.5 + m_localWidth.y/2),
+                            m_localWidth);
+    Button* down = new Button(*this, button_texture,
                math::Point( .5 - m_localWidth.x/2,
                             .5 - m_localWidth.y/2),
-               m_localWidth),
-    m_buttonLeft(*this, button_texture,
+               m_localWidth);
+    Button* left = new Button(*this, button_texture,
                math::Point(-.5 + m_localWidth.x/2,
                             .5 - m_localWidth.y/2),
-               m_localWidth),
-    m_buttonRight(*this, button_texture,
+               m_localWidth);
+    Button* right = new Button(*this, button_texture,
                math::Point( .5 - 3*m_localWidth.x/2,
                             .5 -   m_localWidth.y/2),
-               m_localWidth),
-    m_vertical(*this,
+               m_localWidth);
+    Slider* vertical = new Slider(*this,
                math::Transform(
                   math::Point( .5 - m_localWidth.x/2, 0),
                   math::Vec(m_localWidth.x, 1 - 2*m_localWidth.y)),
-               math::Vec(1, 0.1)),
-    m_horizontal(*this,
+               math::Vec(1, 0.1));
+    Slider* horizontal = new Slider(*this,
                math::Transform(
                   math::Point( -m_localWidth.x/2,
                                .5 -   m_localWidth.y/2),
                   math::Vec(1 - 3*m_localWidth.x, m_localWidth.y)),
-               math::Vec(0.1, 1)),
-    m_offset(0, 0)
-  {
-    m_view->transform().move(-m_localWidth/2);
-    m_view->transform().scale(
-        math::Vec(1 / (1 + m_localWidth.x),
-                  1 / (1 + m_localWidth.y)));
+               math::Vec(0.1, 1));
+
+    m_buttonUp = up->getId();
+    m_buttonDown = down->getId();
+    m_buttonLeft = left->getId();
+    m_buttonRight = right->getId();
+
+    m_scrollVert = vertical->getId();
+    m_scrollHoriz = horizontal->getId();
+
+    addWidget(m_view);
+    addWidget(vertical);
+    addWidget(horizontal);
+    addWidget(up);
+    addWidget(down);
+    addWidget(left);
+    addWidget(right);
   }
-    
-  virtual bool onEvent(const event::Event& event) override
-  {
-    if (isFocused() && needEventForward(event))
-    {
-      bool handled = false;
-      if (!handled)
-        handled = m_buttonUp.onEvent(event);
-      if (!handled)
-        handled = m_buttonDown.onEvent(event);
-      if (!handled)
-        handled = m_buttonLeft.onEvent(event);
-      if (!handled)
-        handled = m_buttonRight.onEvent(event);
-      if (!handled)
-        handled = m_vertical.onEvent(event);
-      if (!handled)
-        handled = m_horizontal.onEvent(event);
-
-      if (handled)
-        return true;
-    }
-
-    return Base::onEvent(event);
-  }
-
-  virtual bool onMouseMoved(const math::Vec& position,
-                            math::TransformStack& transform_stack) override;
-
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
-
-  virtual bool onUpdate(double delta_time) override;
 
   virtual void onClick(size_t button_id) override;
 
   virtual void onHold(size_t button_id, double delta_time) override;
-
-  virtual void draw(sf::RenderTarget& draw_target,
-                    math::TransformStack& transform_stack) override;
 
   virtual void setValue(size_t slider_id, const math::Vec& val) override;
 
   virtual math::Vec getValue(size_t slider_id) override;
 
 private:
-  /*
-  void drawWidget(sf::RenderTarget& draw_target,
-                  math::TransformStack& transform_stack);
-                  */
+  void updateViewPosition();
 
   math::Vec m_localWidth;
   WidgetView* m_view;
-  Button m_buttonUp, m_buttonDown, m_buttonLeft, m_buttonRight;
-  Slider m_vertical, m_horizontal;
-  // sf::RenderTexture m_renderTexture;
+  size_t m_buttonUp, m_buttonDown, m_buttonLeft, m_buttonRight,
+         m_scrollVert, m_scrollHoriz;
   math::Vec m_offset;
 };
 

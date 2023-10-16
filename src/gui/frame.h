@@ -16,24 +16,20 @@
 #include "event/event.h"
 #include "gui/button.h"
 #include "gui/widget.h"
-#include "gui/widget_decorator.h"
+#include "gui/widget_container.h"
 #include "math/transform.h"
 #include "math/vec.h"
 namespace gui
 {
 
-class Frame : public WidgetDecorator, private ButtonController
+class Frame : public WidgetContainer, private ButtonController
 {
-using Base = WidgetDecorator;
+using Base = WidgetContainer;
 public:
   Frame(double width, Widget* widget, const sf::Texture& button_texture) :
-    WidgetDecorator(math::Transform(
+    WidgetContainer(math::Transform(
           widget->transform().getPosition(),
-          widget->transform().getScale() + 2*math::Vec(width, width)),
-        widget),
-    m_resizeButton(*this, button_texture,
-                   math::Point(.5 - width/2, .5-width/2),
-                   math::Vec(width, width)),
+          widget->transform().getScale() + 2*math::Vec(width, width))),
     m_moving(false),
     m_resizing(false),
     m_lastPos()
@@ -43,19 +39,11 @@ public:
         orig_scale.x / (orig_scale.x + 2*width),
         orig_scale.y / (orig_scale.y + 2*width));
     widget->transform() = math::Transform(math::Point(), local_scale);
-  }
 
-  virtual bool onEvent(const event::Event& event) override
-  {
-    if (isFocused() && needEventForward(event))
-    {
-      if (m_resizeButton.onEvent(event))
-      {
-        return true;
-      }
-    }
-
-    return Base::onEvent(event);
+    addWidget(widget);;
+    addWidget(new Button(*this, button_texture, 
+                   math::Point(.5 - width/2, .5-width/2),
+                   math::Vec(width, width)));
   }
 
   virtual bool onMousePressed(event::MouseKey mouse_button) override;
@@ -71,7 +59,6 @@ public:
   virtual void onRelease(size_t) override { m_resizing = false; }
   
 private:
-  Button    m_resizeButton;
   bool      m_moving;
   bool      m_resizing;
   math::Vec m_lastPos;

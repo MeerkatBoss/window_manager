@@ -14,21 +14,22 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include "gui/widget.h"
-#include "gui/widget_decorator.h"
+#include "gui/widget_container.h"
 #include "math/transform.h"
 #include "math/vec.h"
 
 namespace gui
 {
 
-class WidgetView : public WidgetDecorator
+class WidgetView : public WidgetContainer
 {
 public:
   WidgetView(Widget* widget,
              const math::Point& position = math::Point(),
              const math::Vec&   scale = math::Vec(1, 1)) :
-    WidgetDecorator(math::Transform(position, scale), widget)
+    WidgetContainer(math::Transform(position, scale))
   {
+    addWidget(widget);
   }
 
   void setViewPosition(const math::Point& position)
@@ -65,6 +66,9 @@ public:
                     math::TransformStack& transform_stack) override;
 
 private:
+  Widget* getDecorated() { return getWidgets()[0]; }
+  const Widget* getDecorated() const { return getWidgets()[0]; }
+
   sf::RenderTexture m_viewTexture;
 };
 

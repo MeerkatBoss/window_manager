@@ -9,40 +9,46 @@
  *
  * @copyright Copyright MeerkatBoss (c) 2023
  */
-#ifndef __GUI_WIDGET_DECORATOR_H
-#define __GUI_WIDGET_DECORATOR_H
+#ifndef __GUI_WIDGET_CONTAINER_H
+#define __GUI_WIDGET_CONTAINER_H
 
 #include "event/event.h"
 #include "event/keys.h"
 #include "math/transform.h"
 #include "gui/widget.h"
+#include "util/dyn_array.h"
 
 namespace gui
 {
 
-class WidgetDecorator : public Widget
+class WidgetContainer : public Widget
 {
 public:
-  WidgetDecorator(const math::Transform& transform,
-                  Widget* decorated) :
+  WidgetContainer(const math::Transform& transform) :
     Widget(transform),
-    m_decorated(decorated),
+    m_widgets(),
     m_focused(false)
   {
   }
 
-  virtual ~WidgetDecorator() override
+  virtual ~WidgetContainer() override
   {
-    delete m_decorated;
+    for (size_t i = 0; i < m_widgets.getSize(); ++i)
+    {
+      delete m_widgets[i];
+    }
   }
 
   virtual bool onEvent(const event::Event& event) override
   {
     if (m_focused && needEventForward(event))
     {
-      if (m_decorated->onEvent(event))
+      for (size_t i = 0; i < m_widgets.getSize(); ++i)
       {
-        return true;
+        if (m_widgets[i]->onEvent(event))
+        {
+          return true;
+        }
       }
     }
 
@@ -60,7 +66,11 @@ public:
       -0.5 < local_position.x && local_position.x < 0.5 &&
       -0.5 < local_position.y && local_position.y < 0.5;
 
-    bool handled = m_decorated->onMouseMoved(position, transform_stack);
+    bool handled = false;
+    for (size_t i = 0; i < m_widgets.getSize(); ++i)
+    {
+      handled |= m_widgets[i]->onMouseMoved(position, transform_stack);
+    }
 
     transform_stack.exitCoordSystem();
 
@@ -69,24 +79,52 @@ public:
 
   virtual bool onMouseReleased(event::MouseKey mouse_button) override
   {
-    bool handled = m_decorated->onMouseReleased(mouse_button);
+    bool handled = false;
+
+    for (size_t i = 0; i < m_widgets.getSize(); ++i)
+    {
+      handled |= m_widgets[i]->onMouseReleased(mouse_button);
+    }
 
     return Widget::onMouseReleased(mouse_button) || handled;
   }
 
   virtual bool onUpdate(double delta_time) override
   {
-    bool handled = m_decorated->onUpdate(delta_time);
+    bool handled = false;
+    for (size_t i = 0; i < m_widgets.getSize(); ++i)
+    {
+      handled |= m_widgets[i]->onUpdate(delta_time);
+    }
 
     return Widget::onUpdate(delta_time) || handled;
   }
+
+  void draw(sf::RenderTarget& draw_target,
+                    math::TransformStack& transform_stack) override
+  {
+    if (m_widgets.isEmpty())
+    {
+      return;
+    }
+
+    transform_stack.enterCoordSystem(transform());
+    for (size_t i = m_widgets.getSize(); i > 0; --i)
+    {
+      m_widgets[i - 1]->draw(draw_target, transform_stack);
+    }
+    transform_stack.exitCoordSystem();
+  }
+
 protected:
   bool isFocused() const { return m_focused; }
-  Widget* getDecorated() { return m_decorated; }
-  const Widget* getDecorated() const
+  util::DynArray<Widget*>& getWidgets() { return m_widgets; }
+  const util::DynArray<Widget*>& getWidgets() const
   {
-    return const_cast<WidgetDecorator*>(this)->getDecorated();
+    return const_cast<WidgetContainer*>(this)->getWidgets();
   }
+
+  void addWidget(Widget* widget) { m_widgets.pushBack(widget); }
 
   bool needEventForward(const event::Event& event) const
   {
@@ -107,9 +145,10 @@ protected:
     return key_state != event::KeyState::Released;
   }
 
+
 private:
 
-  Widget* m_decorated;
+  util::DynArray<Widget*> m_widgets;
   bool    m_focused;
 };
 
