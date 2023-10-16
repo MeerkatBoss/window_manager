@@ -15,10 +15,18 @@
 #include "gui/canvas.h"
 #include "gui/frame.h"
 #include "gui/slider.h"
+#include "gui/tool_widget.h"
 #include "gui/window.h"
 #include "math/transform.h"
 #include "gui/widget.h"
 #include "gui/scrollbar.h"
+#include "tool/brush_tool.h"
+#include "tool/ellipse_tool.h"
+#include "tool/fill_tool.h"
+#include "tool/line_tool.h"
+#include "tool/polyline_tool.h"
+#include "tool/rectangle_tool.h"
+#include "tool/tool_palette.h"
 
 class DebugController : public gui::ButtonController,
                         public gui::SliderController
@@ -61,17 +69,14 @@ void App::setupUI()
   using math::Point;
   using math::Transform;
 
-  // gui::Button* button = new gui::Button(g_debugController, m_buttonTexture);
-  gui::Canvas* canvas = new gui::Canvas(10, 800, 800,
+  tool::ToolPalette* palette = new tool::ToolPalette();
+
+  gui::Canvas* canvas = new gui::Canvas(*palette, 800, 800,
                                         Point(), Vec(2, 2));
   gui::Scrollbar* scrollbar = new gui::Scrollbar(Transform(), 0.05,
                                                  canvas, m_buttonTexture);
-  gui::Frame* frame = new gui::Frame(0.07, scrollbar, m_buttonTexture);
-
-  /*
-  gui::Slider* slider = new gui::Slider(g_debugController, Transform(),
-                                        Vec(1, 0.1));
-                                        */
+  gui::ToolWidget* menu = new gui::ToolWidget(scrollbar, palette);
+  gui::Frame* frame = new gui::Frame(0.07, menu, m_buttonTexture);
 
   m_widgetTree = frame;
 }

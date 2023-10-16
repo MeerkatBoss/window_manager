@@ -1,39 +1,47 @@
 #include "gui/canvas.h"
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include "event/keys.h"
+#include "gui/widget.h"
 #include "math/transform.h"
 #include "math/transform_stack.h"
 #include "math/vec.h"
+#include "tool/tool.h"
+#include "tool/tool_palette.h"
 
 namespace gui
 {
 
-void Canvas::applyBrush(const math::Vec& position)
-{
-  sf::CircleShape brush(m_penRadius);
-  brush.setOrigin(m_penRadius / 2, m_penRadius / 2);
-  brush.setPosition(position);
-  brush.setFillColor(sf::Color::Black);
-  m_renderTexture.draw(brush);
-}
-
 bool Canvas::onMousePressed(event::MouseKey mouse_button)
 {
+  if (mouse_button == event::MouseKey::Right)
+  {
+    m_palette.getActiveTool()->onSecondaryButton(
+        tool::ButtonState::Pressed, m_lastPos, *this);
+  }
+
   if (mouse_button != event::MouseKey::Left || !m_hovered)
     return false;
 
-  m_drawing = true;
-  applyBrush(m_lastPos);
+  m_palette.getActiveTool()->onMainButton(
+      tool::ButtonState::Pressed, m_lastPos, *this);
 
   return true;
 }
 
 bool Canvas::onMouseReleased(event::MouseKey mouse_button)
 {
-  if (mouse_button != event::MouseKey::Left || !m_drawing)
+  if (mouse_button == event::MouseKey::Right)
+  {
+    m_palette.getActiveTool()->onSecondaryButton(
+        tool::ButtonState::Released, m_lastPos, *this);
+  }
+
+  if (mouse_button != event::MouseKey::Left)
     return false;
 
-  m_drawing = false;
+  m_palette.getActiveTool()->onMainButton(
+      tool::ButtonState::Released, m_lastPos, *this);
 
   return true;
 }
@@ -58,12 +66,77 @@ bool Canvas::onMouseMoved(const math::Vec& position,
   if (m_hovered)
     m_lastPos = local_position;
 
-  if (!m_drawing)
-    return m_hovered;
-
-  applyBrush(m_lastPos);
+  m_palette.getActiveTool()->onMove(m_lastPos, *this);
 
   return true;
+}
+
+bool Canvas::onKeyboardPressed(event::KeyboardKey key)
+{
+  using event::KeyboardKey;
+
+  if (key == KeyboardKey::LShift || key == KeyboardKey::RShift)
+  {
+    m_palette.getActiveTool()->onModifier1(
+        tool::ButtonState::Pressed, m_lastPos, *this);
+    return true;
+  }
+
+  if (key == KeyboardKey::LControl || key == KeyboardKey::RControl)
+  {
+    m_palette.getActiveTool()->onModifier2(
+        tool::ButtonState::Pressed, m_lastPos, *this);
+    return true;
+  }
+
+  if (key == KeyboardKey::LAlt || key == KeyboardKey::RAlt)
+  {
+    m_palette.getActiveTool()->onModifier3(
+        tool::ButtonState::Pressed, m_lastPos, *this);
+    return true;
+  }
+
+  if (key == KeyboardKey::Escape)
+  {
+    m_palette.getActiveTool()->onCancel(m_lastPos, *this);
+    return true;
+  }
+
+  if (key == KeyboardKey::Enter)
+  {
+    m_palette.getActiveTool()->onConfirm(m_lastPos, *this);
+    return true;
+  }
+
+  return false;
+}
+
+bool Canvas::onKeyboardReleased(event::KeyboardKey key)
+{
+  using event::KeyboardKey;
+
+  if (key == KeyboardKey::LShift || key == KeyboardKey::RShift)
+  {
+    m_palette.getActiveTool()->onModifier1(
+        tool::ButtonState::Released, m_lastPos, *this);
+    return true;
+  }
+
+  if (key == KeyboardKey::LControl || key == KeyboardKey::RControl)
+  {
+    m_palette.getActiveTool()->onModifier2(
+        tool::ButtonState::Released, m_lastPos, *this);
+    return true;
+  }
+
+  if (key == KeyboardKey::LAlt || key == KeyboardKey::RAlt)
+  {
+    m_palette.getActiveTool()->onModifier3(
+        tool::ButtonState::Released, m_lastPos, *this);
+    return true;
+  }
+
+  return false;
 }
 
 void Canvas::draw(sf::RenderTarget& draw_target,
@@ -80,9 +153,13 @@ void Canvas::draw(sf::RenderTarget& draw_target,
   sprite.setPosition(real_transform.getPosition());
   draw_target.draw(sprite);
 
-  transform_stack.exitCoordSystem();
-  transform_stack.exitCoordSystem();
+  Widget* tool_widget = m_palette.getActiveTool()->getWidget();
 
+  if (tool_widget)
+    tool_widget->draw(draw_target, transform_stack);
+
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
 }
 
 
