@@ -13,6 +13,7 @@
 #define __GUI_CANVAS_H
 
 #include <SFML/Graphics/RenderTexture.hpp>
+#include "filter/filter_mask.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/vec.h"
@@ -22,21 +23,26 @@ namespace tool
   class ToolPalette;
 }
 
+namespace filter
+{
+  class FilterPalette;
+}
+
 namespace gui
 {
 
 class Canvas : public Widget
 {
 public:
-  Canvas(tool::ToolPalette& palette,
+  Canvas(tool::ToolPalette& palette, filter::FilterPalette& filters,
          size_t width_px, size_t height_px,
          const math::Point& position = math::Point()) :
-    Canvas(palette, width_px, height_px, position,
+    Canvas(palette, filters, width_px, height_px, position,
            math::Vec(double(width_px) / double(height_px), 1))
   {
   }
 
-  Canvas(tool::ToolPalette& palette,
+  Canvas(tool::ToolPalette& palette, filter::FilterPalette& filters,
          size_t width_px, size_t height_px,
          const math::Point& position,
          const math::Vec&   scale) :
@@ -45,11 +51,14 @@ public:
     m_textureTransform(math::Vec(-0.5, -0.5),
                        math::Vec(1.0/width_px, 1.0/height_px)),
     m_palette(palette),
+    m_filters(filters),
+    m_mask(width_px, height_px),
     m_hovered(false),
     m_lastPos()
   {
     m_renderTexture.create(width_px, height_px);
     m_renderTexture.clear(sf::Color::White);
+    m_mask.fill(true);
   }
 
   virtual bool onMousePressed(event::MouseKey mouse_button) override;
@@ -67,11 +76,14 @@ public:
   sf::RenderTexture& getRenderTexture() { return m_renderTexture; }
 
 private:
-  sf::RenderTexture  m_renderTexture;// TODO: Extract to Document
-  math::Transform    m_textureTransform;
-  tool::ToolPalette& m_palette;
+  sf::RenderTexture      m_renderTexture;// TODO: Extract to Document
+  math::Transform        m_textureTransform;
+  tool::ToolPalette&     m_palette;
+  filter::FilterPalette& m_filters;
+  filter::FilterMask     m_mask;
 
   bool              m_hovered;
+  bool              m_control;
   math::Point       m_lastPos;
 };
 

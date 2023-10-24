@@ -15,6 +15,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include "gui/widget.h"
+#include "filter/filter_palette.h"
 
 class App
 {
@@ -28,6 +29,7 @@ private:
 
   sf::RenderWindow m_window;
   gui::Widget*     m_widgetTree;
+  filter::FilterPalette m_filters;
 
   void setupUI();
 

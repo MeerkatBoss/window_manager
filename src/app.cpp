@@ -71,7 +71,7 @@ void App::setupUI()
 
   tool::ToolPalette* palette = new tool::ToolPalette();
 
-  gui::Canvas* canvas = new gui::Canvas(*palette, 800, 800,
+  gui::Canvas* canvas = new gui::Canvas(*palette, m_filters, 800, 800,
                                         Point(), Vec(2, 2));
   gui::Scrollbar* scrollbar = new gui::Scrollbar(Transform(), 0.05,
                                                  canvas, m_buttonTexture);

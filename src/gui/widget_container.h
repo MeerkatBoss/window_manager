@@ -67,6 +67,7 @@ public:
       -0.5 < local_position.y && local_position.y < 0.5;
 
     bool handled = false;
+    // TODO: Try to dispatch event based on child bounding geometry
     for (size_t i = 0; i < m_widgets.getSize(); ++i)
     {
       handled |= m_widgets[i]->onMouseMoved(position, transform_stack);

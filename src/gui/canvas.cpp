@@ -2,6 +2,8 @@
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include "event/keys.h"
+#include "filter/filter.h"
+#include "filter/filter_palette.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/transform_stack.h"
@@ -86,6 +88,7 @@ bool Canvas::onKeyboardPressed(event::KeyboardKey key)
   {
     m_palette.getActiveTool()->onModifier2(
         tool::ButtonState::Pressed, m_lastPos, *this);
+    m_control = true;
     return true;
   }
 
@@ -108,6 +111,25 @@ bool Canvas::onKeyboardPressed(event::KeyboardKey key)
     return true;
   }
 
+  if (m_control && key == KeyboardKey::F)
+  {
+    filter::Filter* last_filter = m_filters.getLastFilter();
+    if (last_filter)
+      last_filter->applyFilter(*this, m_mask);
+    return true;
+  }
+
+  if (m_control && key == KeyboardKey::W)
+  {
+    filter::Filter* filter = m_filters.getFilter(
+                              size_t(filter::FilterId::Brightness));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Brightness));
+    return true;
+  }
+
   return false;
 }
 
@@ -126,6 +148,7 @@ bool Canvas::onKeyboardReleased(event::KeyboardKey key)
   {
     m_palette.getActiveTool()->onModifier2(
         tool::ButtonState::Released, m_lastPos, *this);
+    m_control = false;
     return true;
   }
 
