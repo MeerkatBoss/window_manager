@@ -14,6 +14,7 @@
 
 #include <SFML/Graphics/RenderTarget.hpp>
 
+#include "gui/layout/default_box.h"
 #include "gui/widget_container.h"
 #include "math/transform.h"
 #include "math/transform_stack.h"
@@ -28,9 +29,9 @@ class ToolWidget : public WidgetContainer
 
 public:
   ToolWidget(Widget* contained, tool::ToolPalette* palette) :
-    Base(contained->transform()), m_palette(palette)
+    Base(contained->getLayoutBox()->copy()), m_palette(palette)
   {
-    contained->transform() = math::Transform();
+    contained->setLayoutBox(new layout::DefaultBox(100_per, 100_per));
     addWidget(contained);
   }
 

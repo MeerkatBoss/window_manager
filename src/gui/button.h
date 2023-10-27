@@ -16,6 +16,7 @@
 
 #include <SFML/Graphics/Texture.hpp>
 
+#include "gui/layout/layout_box.h"
 #include "math/transform.h"
 #include "gui/widget.h"
 #include "math/vec.h"
@@ -39,18 +40,8 @@ class Button : public Widget
 public:
   Button(ButtonController& controller,
          const sf::Texture& texture,
-         const math::Point& position = math::Point()) :
-    Button(controller, texture, position,
-           math::Vec(double(texture.getSize().x) / double(texture.getSize().y),
-                     1))
-  {
-  }
-
-  Button(ButtonController& controller,
-         const sf::Texture& texture,
-         const math::Point& position,
-         const math::Vec& scale) :
-    Widget(math::Transform(position, scale)),
+         layout::LayoutBox* layout_box) :
+    Widget(layout_box),
     m_texture(texture),
     m_textureTransform(math::Vec(-0.5, -0.5),
                        math::Vec(1.0/texture.getSize().x,
@@ -60,7 +51,6 @@ public:
     m_hovered(false)
   {
   }
-
 
   virtual bool onMousePressed(event::MouseKey mouse_button) override;
   virtual bool onMouseReleased(event::MouseKey mouse_button) override;
@@ -73,7 +63,6 @@ public:
   virtual void draw(sf::RenderTarget& draw_target,
                     math::TransformStack& transform_stack) override;
 
-    
 private:
   const sf::Texture& m_texture;
   math::Transform    m_textureTransform;

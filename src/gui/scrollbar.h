@@ -1,7 +1,7 @@
 /**
  * @file scrollbar.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -16,7 +16,10 @@
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+
 #include "gui/button.h"
+#include "gui/layout/default_box.h"
+#include "gui/layout/units.h"
 #include "gui/slider.h"
 #include "gui/widget.h"
 #include "gui/widget_container.h"
@@ -27,58 +30,59 @@
 namespace gui
 {
 
-class Scrollbar : public WidgetContainer, private ButtonController,
-                                          private SliderController
+class Scrollbar : public WidgetContainer,
+                  private ButtonController,
+                  private SliderController
 {
-using Base = WidgetContainer;
-public:
-  Scrollbar(const math::Transform& transform,
-            double scroll_bar_width,
-            Widget* widget, 
-            const sf::Texture& button_texture) :
-    WidgetContainer(transform),
-    m_localWidth(scroll_bar_width / transform.getScale().x,
-                 scroll_bar_width / transform.getScale().y),
-    m_view(new WidgetView(widget, -m_localWidth/2, transform.getScale())),
-    m_offset(0, 0)
-  {
-    m_view->transform().scale(
-        math::Vec(1 / (1 + m_localWidth.x),
-                  1 / (1 + m_localWidth.y)));
-    Button* up = new Button(*this, button_texture,
-                            math::Point( .5 - m_localWidth.x/2,
-                                        -.5 + m_localWidth.y/2),
-                            m_localWidth);
-    Button* down = new Button(*this, button_texture,
-               math::Point( .5 - m_localWidth.x/2,
-                            .5 - m_localWidth.y/2),
-               m_localWidth);
-    Button* left = new Button(*this, button_texture,
-               math::Point(-.5 + m_localWidth.x/2,
-                            .5 - m_localWidth.y/2),
-               m_localWidth);
-    Button* right = new Button(*this, button_texture,
-               math::Point( .5 - 3*m_localWidth.x/2,
-                            .5 -   m_localWidth.y/2),
-               m_localWidth);
-    Slider* vertical = new Slider(*this,
-               math::Transform(
-                  math::Point( .5 - m_localWidth.x/2, 0),
-                  math::Vec(m_localWidth.x, 1 - 2*m_localWidth.y)),
-               math::Vec(1, 0.1));
-    Slider* horizontal = new Slider(*this,
-               math::Transform(
-                  math::Point( -m_localWidth.x/2,
-                               .5 -   m_localWidth.y/2),
-                  math::Vec(1 - 3*m_localWidth.x, m_localWidth.y)),
-               math::Vec(0.1, 1));
+  using Base = WidgetContainer;
 
-    m_buttonUp = up->getId();
-    m_buttonDown = down->getId();
-    m_buttonLeft = left->getId();
+public:
+  Scrollbar(layout::Length width, Widget* widget,
+            const sf::Texture& button_texture) :
+      WidgetContainer(widget->getLayoutBox()->copy()),
+      m_view(new WidgetView(widget, 2)),
+      m_offset(.5, .5)
+  {
+    const layout::Length width2(2 * width.value, width.unit);
+
+    layout::DefaultBox* view_box =
+        new layout::DefaultBox(100_per, 100_per, layout::Align::TopLeft);
+    view_box->setPadding(0_px, width, 0_px, width);
+    m_view->setLayoutBox(view_box);
+
+    layout::DefaultBox* up_box =
+        new layout::DefaultBox(width, width, layout::Align::TopRight);
+    Button* up = new Button(*this, button_texture, up_box);
+
+    layout::DefaultBox* down_box =
+        new layout::DefaultBox(width, width, layout::Align::BottomRight);
+    Button* down = new Button(*this, button_texture, down_box);
+
+    layout::DefaultBox* left_box =
+        new layout::DefaultBox(width, width, layout::Align::BottomLeft);
+    Button* left = new Button(*this, button_texture, left_box);
+
+    layout::DefaultBox* right_box =
+        new layout::DefaultBox(width2, width, layout::Align::BottomRight);
+    right_box->setPadding(0_px, 0_px, 0_px, width);
+    Button* right = new Button(*this, button_texture, right_box);
+
+    layout::DefaultBox* vert_box =
+        new layout::DefaultBox(width, 100_per, layout::Align::TopRight);
+    vert_box->setPadding(width, 0_px);
+    Slider* vertical = new Slider(*this, vert_box, math::Vec(1, 0.1));
+
+    layout::DefaultBox* horiz_box =
+        new layout::DefaultBox(100_per, width, layout::Align::BottomLeft);
+    horiz_box->setPadding(0_px, 0_px, width, width2);
+    Slider* horizontal = new Slider(*this, horiz_box, math::Vec(0.1, 1));
+
+    m_buttonUp    = up->getId();
+    m_buttonDown  = down->getId();
+    m_buttonLeft  = left->getId();
     m_buttonRight = right->getId();
 
-    m_scrollVert = vertical->getId();
+    m_scrollVert  = vertical->getId();
     m_scrollHoriz = horizontal->getId();
 
     addWidget(m_view);
@@ -88,6 +92,8 @@ public:
     addWidget(down);
     addWidget(left);
     addWidget(right);
+
+    updateViewPosition();
   }
 
   virtual void onClick(size_t button_id) override;
@@ -101,10 +107,10 @@ public:
 private:
   void updateViewPosition();
 
-  math::Vec m_localWidth;
+  math::Vec   m_localWidth;
   WidgetView* m_view;
-  size_t m_buttonUp, m_buttonDown, m_buttonLeft, m_buttonRight,
-         m_scrollVert, m_scrollHoriz;
+  size_t m_buttonUp, m_buttonDown, m_buttonLeft, m_buttonRight, m_scrollVert,
+      m_scrollHoriz;
   math::Vec m_offset;
 };
 

@@ -3,6 +3,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/transform_stack.h"
@@ -18,6 +19,7 @@ class LinePreview : public gui::Widget
 public:
   LinePreview(const math::Vec* start_pos,
               const math::Vec* end_pos) :
+    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
     m_startPos(*start_pos), m_endPos(*end_pos) {}
 
   virtual void draw(sf::RenderTarget& draw_target,

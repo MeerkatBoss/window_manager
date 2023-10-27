@@ -2,6 +2,7 @@
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "tool/tool_palette.h"
 #include "math/vec.h"
@@ -15,6 +16,7 @@ class RectPreview : public gui::Widget
 public:
   RectPreview(const math::Vec* start_pos,
               const math::Vec* end_pos) :
+    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
     m_startPos(*start_pos), m_endPos(*end_pos) {}
 
   virtual void draw(sf::RenderTarget& draw_target,

@@ -14,6 +14,7 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include "filter/filter_mask.h"
+#include "gui/layout/layout_box.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/vec.h"
@@ -36,24 +37,14 @@ class Canvas : public Widget
 public:
   Canvas(tool::ToolPalette& palette, filter::FilterPalette& filters,
          size_t width_px, size_t height_px,
-         const math::Point& position = math::Point()) :
-    Canvas(palette, filters, width_px, height_px, position,
-           math::Vec(double(width_px) / double(height_px), 1))
-  {
-  }
-
-  Canvas(tool::ToolPalette& palette, filter::FilterPalette& filters,
-         size_t width_px, size_t height_px,
-         const math::Point& position,
-         const math::Vec&   scale) :
-    Widget(math::Transform(position, scale)),
+         layout::LayoutBox* layout_box) :
+    Widget(layout_box),
     m_renderTexture(),
-    m_textureTransform(math::Vec(-0.5, -0.5),
-                       math::Vec(1.0/width_px, 1.0/height_px)),
     m_palette(palette),
     m_filters(filters),
     m_mask(width_px, height_px),
     m_hovered(false),
+    m_control(false),
     m_lastPos()
   {
     m_renderTexture.create(width_px, height_px);
@@ -76,8 +67,9 @@ public:
   sf::RenderTexture& getRenderTexture() { return m_renderTexture; }
 
 private:
+  math::Transform getTextureTransform() const;
+
   sf::RenderTexture      m_renderTexture;// TODO: Extract to Document
-  math::Transform        m_textureTransform;
   tool::ToolPalette&     m_palette;
   filter::FilterPalette& m_filters;
   filter::FilterMask     m_mask;

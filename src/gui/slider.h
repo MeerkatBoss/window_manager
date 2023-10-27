@@ -12,6 +12,7 @@
 #ifndef __GUI_SLIDER_H
 #define __GUI_SLIDER_H
 
+#include "gui/layout/layout_box.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/vec.h"
@@ -32,9 +33,9 @@ class Slider : public Widget
 {
 public:
   Slider(SliderController& controller,
-         const math::Transform& transform,
+         layout::LayoutBox* layout_box,
          const math::Vec& handle_scale) :
-    Widget(transform),
+    Widget(layout_box),
     m_controller(controller),
     m_handleScale(handle_scale),
     m_hovered(false),
@@ -53,6 +54,12 @@ public:
                     math::TransformStack& transform_stack) override;
 
 private:
+  void drawBackground(sf::RenderTarget& draw_target,
+                      math::TransformStack& transform_stack);
+
+  void drawHandle(sf::RenderTarget& draw_target,
+                  math::TransformStack& transform_stack);
+
   SliderController& m_controller;
   math::Vec         m_handleScale;
   bool              m_hovered;

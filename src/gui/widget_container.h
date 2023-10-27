@@ -1,7 +1,7 @@
 /**
  * @file widget_decorator.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -14,8 +14,8 @@
 
 #include "event/event.h"
 #include "event/keys.h"
-#include "math/transform.h"
 #include "gui/widget.h"
+#include "math/transform.h"
 #include "util/dyn_array.h"
 
 namespace gui
@@ -24,10 +24,8 @@ namespace gui
 class WidgetContainer : public Widget
 {
 public:
-  WidgetContainer(const math::Transform& transform) :
-    Widget(transform),
-    m_widgets(),
-    m_focused(false)
+  WidgetContainer(layout::LayoutBox* layout_box) :
+      Widget(layout_box), m_widgets(), m_focused(false)
   {
   }
 
@@ -55,19 +53,14 @@ public:
     return Widget::onEvent(event);
   }
 
-  virtual bool onMouseMoved(const math::Vec& position,
+  virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override
   {
-    transform_stack.enterCoordSystem(transform());
-    math::Point local_position = transform_stack.getCoordSystem()
-                                                .restorePoint(position);
+    m_focused = containsPoint(position, transform_stack);
 
-    m_focused =
-      -0.5 < local_position.x && local_position.x < 0.5 &&
-      -0.5 < local_position.y && local_position.y < 0.5;
+    transform_stack.enterCoordSystem(getLocalTransform());
 
     bool handled = false;
-    // TODO: Try to dispatch event based on child bounding geometry
     for (size_t i = 0; i < m_widgets.getSize(); ++i)
     {
       handled |= m_widgets[i]->onMouseMoved(position, transform_stack);
@@ -101,15 +94,15 @@ public:
     return Widget::onUpdate(delta_time) || handled;
   }
 
-  void draw(sf::RenderTarget& draw_target,
-                    math::TransformStack& transform_stack) override
+  void draw(sf::RenderTarget&     draw_target,
+            math::TransformStack& transform_stack) override
   {
     if (m_widgets.isEmpty())
     {
       return;
     }
 
-    transform_stack.enterCoordSystem(transform());
+    transform_stack.enterCoordSystem(getLocalTransform());
     for (size_t i = m_widgets.getSize(); i > 0; --i)
     {
       m_widgets[i - 1]->draw(draw_target, transform_stack);
@@ -117,9 +110,23 @@ public:
     transform_stack.exitCoordSystem();
   }
 
+  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override
+  {
+    getLayoutBox()->updateParent(parent_box);
+    size_t widget_count = m_widgets.getSize();
+    for (size_t i = 0; i < widget_count; ++i)
+    {
+      m_widgets[i]->onLayoutUpdate(*getLayoutBox());
+    }
+  }
+
 protected:
-  bool isFocused() const { return m_focused; }
-  util::DynArray<Widget*>& getWidgets() { return m_widgets; }
+  bool isFocused(void) const { return m_focused; }
+
+  void focus(void) { m_focused = true; }
+  void unfocus(void) { m_focused = false; }
+
+  util::DynArray<Widget*>&       getWidgets() { return m_widgets; }
   const util::DynArray<Widget*>& getWidgets() const
   {
     return const_cast<WidgetContainer*>(this)->getWidgets();
@@ -130,8 +137,7 @@ protected:
   bool needEventForward(const event::Event& event) const
   {
     size_t type = event.getEventType();
-    if (type == event::EventType::MouseMove ||
-        type == event::EventType::Update)
+    if (type == event::EventType::MouseMove || type == event::EventType::Update)
     {
       return false;
     }
@@ -141,16 +147,14 @@ protected:
     }
 
     event::KeyState key_state =
-      static_cast<const event::MouseButtonEvent&>(event).buttonState;
+        static_cast<const event::MouseButtonEvent&>(event).buttonState;
 
     return key_state != event::KeyState::Released;
   }
 
-
 private:
-
   util::DynArray<Widget*> m_widgets;
-  bool    m_focused;
+  bool                    m_focused;
 };
 
 } // namespace gui

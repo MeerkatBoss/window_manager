@@ -9,17 +9,12 @@ namespace gui
 
 void Scrollbar::updateViewPosition()
 {
-  if (m_offset.x < -0.5) m_offset.x = -0.5;
-  if (m_offset.x >  0.5) m_offset.x = 0.5;
-  if (m_offset.y < -0.5) m_offset.y = -0.5;
-  if (m_offset.y >  0.5) m_offset.y = 0.5;
-  const math::Vec scale = m_view->getViewScale();
+  if (m_offset.x < 0) m_offset.x = 0;
+  if (m_offset.x > 1) m_offset.x = 1;
+  if (m_offset.y < 0) m_offset.y = 0;
+  if (m_offset.y > 1) m_offset.y = 1;
   
-  const double max_offset_x = scale.x/2;
-  const double max_offset_y = scale.y/2;
-  m_view->setViewPosition(math::Vec(
-            m_offset.x * max_offset_x,
-            m_offset.y * max_offset_y));
+  m_view->setViewPosition(math::Vec(m_offset.x - .5, m_offset.y - .5));
 }
 
 void Scrollbar::onClick(size_t button_id)

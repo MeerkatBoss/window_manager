@@ -15,6 +15,7 @@
 #include <SFML/Graphics/Texture.hpp>
 #include "event/event.h"
 #include "gui/button.h"
+#include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "gui/widget_container.h"
 #include "math/transform.h"
@@ -26,24 +27,24 @@ class Frame : public WidgetContainer, private ButtonController
 {
 using Base = WidgetContainer;
 public:
-  Frame(double width, Widget* widget, const sf::Texture& button_texture) :
-    WidgetContainer(math::Transform(
-          widget->transform().getPosition(),
-          widget->transform().getScale() + 2*math::Vec(width, width))),
+  Frame(const layout::Length& width,
+        Widget* widget,
+        const sf::Texture& button_texture) :
+    WidgetContainer(widget->getLayoutBox()->copy()),
     m_moving(false),
     m_resizing(false),
     m_lastPos()
   {
-    const math::Vec& orig_scale = widget->transform().getScale();
-    const math::Vec local_scale(
-        orig_scale.x / (orig_scale.x + 2*width),
-        orig_scale.y / (orig_scale.y + 2*width));
-    widget->transform() = math::Transform(math::Point(), local_scale);
+    layout::DefaultBox* main_box =
+      new layout::DefaultBox(100_per, 100_per, layout::Align::Center);
+    main_box->setPadding(width);
+    widget->setLayoutBox(main_box);
+    addWidget(widget);
 
-    addWidget(widget);;
-    addWidget(new Button(*this, button_texture, 
-                   math::Point(.5 - width/2, .5-width/2),
-                   math::Vec(width, width)));
+    layout::DefaultBox* button_box =
+      new layout::DefaultBox(width, width, layout::Align::BottomRight);
+    Button* resize = new Button(*this, button_texture, button_box);
+    addWidget(resize);
   }
 
   virtual bool onMousePressed(event::MouseKey mouse_button) override;

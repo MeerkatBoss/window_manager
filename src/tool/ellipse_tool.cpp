@@ -1,6 +1,7 @@
 #include "tool/ellipse_tool.h"
 #include <SFML/Graphics/Vertex.hpp>
 #include <cmath>
+#include "gui/layout/default_box.h"
 #include "gui/canvas.h"
 #include "gui/widget.h"
 #include "math/vec.h"
@@ -16,6 +17,7 @@ class EllipsePreview : public gui::Widget
 public:
   EllipsePreview(const math::Vec* start_pos,
               const math::Vec* end_pos) :
+    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
     m_startPos(*start_pos), m_endPos(*end_pos) {}
 
   virtual void draw(sf::RenderTarget& draw_target,

@@ -4,6 +4,7 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "math/transform.h"
 #include "math/transform_stack.h"
@@ -19,6 +20,7 @@ class PolylinePreview : public gui::Widget
 {
 public:
   PolylinePreview(const util::DynArray<math::Vec>* points) :
+    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
     m_points(*points) {}
 
   void draw(sf::RenderTarget& draw_target,

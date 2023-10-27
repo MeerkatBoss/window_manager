@@ -1,7 +1,14 @@
 #include "gui/button.h"
+
+#include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Vertex.hpp>
+#include <SFML/Graphics/VertexArray.hpp>
+#include <SFML/System/Vector2.hpp>
+
 #include "event/keys.h"
 #include "gui/widget.h"
 #include "math/transform.h"
+#include "math/vec.h"
 
 namespace gui
 {
@@ -28,17 +35,10 @@ bool Button::onMouseReleased(event::MouseKey mouse_button)
   return true;
 }
 
-bool Button::onMouseMoved(const math::Vec& position,
+bool Button::onMouseMoved(const math::Vec&      position,
                           math::TransformStack& transform_stack)
 {
-  transform_stack.enterCoordSystem(transform());
-  const math::Vec local_position = transform_stack.getCoordSystem()
-                                    .restorePoint(position);
-  transform_stack.exitCoordSystem();
-
-  return m_hovered = (-0.5 < local_position.x && local_position.x < 0.5 &&
-                      -0.5 < local_position.y && local_position.y < 0.5);
-                      
+  return m_hovered = containsPoint(position, transform_stack);
 }
 
 bool Button::onUpdate(double delta_time)
@@ -51,22 +51,39 @@ bool Button::onUpdate(double delta_time)
   return false;
 }
 
-void Button::draw(sf::RenderTarget& draw_target,
+void Button::draw(sf::RenderTarget&     draw_target,
                   math::TransformStack& transform_stack)
 {
-  transform_stack.enterCoordSystem(transform());
-  transform_stack.enterCoordSystem(m_textureTransform);
+  transform_stack.enterCoordSystem(getLocalTransform());
 
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
-  sf::Sprite sprite(m_texture);
-  sprite.setScale(real_transform.getScale());
-  sprite.setPosition(real_transform.getPosition());
+  const math::Vec size = getSize();
+  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
+                         getLayoutBox()->getLocalOrigin().y * size.y);
 
-  draw_target.draw(sprite);
+  const math::Point tl(0, 0);
+  const math::Point tr(size.x, 0);
+  const math::Point bl(0, size.y);
+  const math::Point br(size.x, size.y);
 
-  transform_stack.exitCoordSystem();
+  const sf::Vector2u& tex_size = m_texture.getSize();
+
+  const math::Point tex_tl(0, 0);
+  const math::Point tex_tr(tex_size.x, 0);
+  const math::Point tex_bl(0, tex_size.y);
+  const math::Point tex_br(tex_size.x, tex_size.y);
+
+  sf::VertexArray array(sf::TriangleStrip, 4);
+
+  array[0] = sf::Vertex(real_transform.transformPoint(tl - origin), tex_tl);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr - origin), tex_tr);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl - origin), tex_bl);
+  array[3] = sf::Vertex(real_transform.transformPoint(br - origin), tex_br);
+
+  draw_target.draw(array, &m_texture);
+
   transform_stack.exitCoordSystem();
 }
 
-} // namespace ui
+} // namespace gui

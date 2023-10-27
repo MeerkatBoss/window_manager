@@ -14,6 +14,18 @@
 namespace gui
 {
 
+math::Transform Canvas::getTextureTransform() const
+{
+  const math::Vec size = getSize();
+  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
+                         getLayoutBox()->getLocalOrigin().y * size.y);
+
+  const math::Vec tex_scale(size.x / m_renderTexture.getSize().x,
+                            size.y / m_renderTexture.getSize().y);
+
+  return math::Transform(-origin, tex_scale);
+}
+
 bool Canvas::onMousePressed(event::MouseKey mouse_button)
 {
   if (mouse_button == event::MouseKey::Right)
@@ -51,8 +63,8 @@ bool Canvas::onMouseReleased(event::MouseKey mouse_button)
 bool Canvas::onMouseMoved(const math::Vec& position,
                           math::TransformStack& transform_stack)
 {
-  transform_stack.enterCoordSystem(transform());
-  transform_stack.enterCoordSystem(m_textureTransform);
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(getTextureTransform());
 
   const math::Vec local_position = transform_stack.getCoordSystem()
                                     .restorePoint(position);
@@ -167,16 +179,37 @@ void Canvas::draw(sf::RenderTarget& draw_target,
 {
   m_renderTexture.display();
 
-  transform_stack.enterCoordSystem(transform());
-  transform_stack.enterCoordSystem(m_textureTransform);
+  transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
-  sf::Sprite sprite(m_renderTexture.getTexture());
-  sprite.setScale(real_transform.getScale());
-  sprite.setPosition(real_transform.getPosition());
-  draw_target.draw(sprite);
+  const math::Vec size = getSize();
+  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
+                         getLayoutBox()->getLocalOrigin().y * size.y);
+
+  const math::Point tl(0, 0);
+  const math::Point tr(size.x, 0);
+  const math::Point bl(0, size.y);
+  const math::Point br(size.x, size.y);
+
+  const sf::Vector2u& tex_size = m_renderTexture.getSize();
+
+  const math::Point tex_tl(0, 0);
+  const math::Point tex_tr(tex_size.x, 0);
+  const math::Point tex_bl(0, tex_size.y);
+  const math::Point tex_br(tex_size.x, tex_size.y);
+
+  sf::VertexArray array(sf::TriangleStrip, 4);
+
+  array[0] = sf::Vertex(real_transform.transformPoint(tl - origin), tex_tl);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr - origin), tex_tr);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl - origin), tex_bl);
+  array[3] = sf::Vertex(real_transform.transformPoint(br - origin), tex_br);
+
+  draw_target.draw(array, &m_renderTexture.getTexture());
 
   Widget* tool_widget = m_palette.getActiveTool()->getWidget();
+
+  transform_stack.enterCoordSystem(getTextureTransform());
 
   if (tool_widget)
     tool_widget->draw(draw_target, transform_stack);
