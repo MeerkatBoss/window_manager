@@ -13,19 +13,22 @@
 #define __APP_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include "gui/widget.h"
 
 class App
 {
 public:
   static constexpr size_t windowWidth  = 1000;
-  static constexpr size_t windowHeight = 700;
+  static constexpr size_t windowHeight = 1000;
 
   App();
   ~App();
 
   void run(void);
 private:
+  sf::Texture      m_buttonTexture;
+
   sf::RenderWindow m_window;
   gui::Widget*     m_widgetTree;
 

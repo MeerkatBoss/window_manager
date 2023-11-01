@@ -1,21 +1,39 @@
 #include "app.h"
 
+#include <SFML/Window/VideoMode.hpp>
+#include <SFML/Window/WindowStyle.hpp>
 #include <cstdio>
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+#include "event/event.h"
+#include "event/event_emitter.h"
+#include "gui/button.h"
 #include "math/transform.h"
 #include "gui/widget.h"
+
+class DebugController : public gui::ButtonController
+{
+  virtual void onClick(size_t button_id) override
+  {
+    printf("Clicked %zu!\n", button_id);
+    return;
+  }
+};
+
+static DebugController g_debugController;
 
 App::App()
 {
   using math::Vec;
   using math::Transform;
 
-  m_window.create(sf::VideoMode(windowWidth, windowHeight),
+  m_window.create(sf::VideoMode::getDesktopMode(),
                   "Window Manager",
-                  sf::Style::Close);
+                  sf::Style::Fullscreen);
+
+  m_buttonTexture.loadFromFile("assets/button_square.png");
 
   setupUI();
 }
@@ -25,6 +43,8 @@ void App::setupUI()
   using math::Vec;
   using math::Point;
   using math::Transform;
+
+  m_widgetTree = new gui::Button(g_debugController, m_buttonTexture);
 }
 
 App::~App()
@@ -44,10 +64,19 @@ void App::run()
 void App::runMainLoop()
 {
   sf::Event event;
-  sf::Clock clock;
 
-  math::Transform root = math::Transform(math::Vec(0, 0),
-                                       math::Vec(windowWidth, windowHeight));
+  math::TransformStack stack;
+  const math::Vec win_offset(m_window.getSize().x / 2,
+                             m_window.getSize().y / 2);
+  const double min_offset = win_offset.x < win_offset.y
+                                ? win_offset.x
+                                : win_offset.y;
+  const math::Vec win_scale(min_offset, min_offset);
+  
+  stack.enterCoordSystem(math::Transform(win_offset, win_scale));
+
+  event::EventEmitter emitter(stack);
+
   while (m_window.isOpen())
   {
     while (m_window.pollEvent(event))
@@ -56,17 +85,29 @@ void App::runMainLoop()
       {
         m_window.close();
       }
+      else
+      {
+        event::Event* emitted = emitter.emitEvent(event);
+
+        if (emitted)
+        {
+          m_widgetTree->onEvent(*emitted);
+          delete emitted;
+        }
+      }
     }
     if (!m_window.isOpen())
     {
       break;
     }
-    double delta_time = clock.restart().asSeconds();
+
+    m_widgetTree->onEvent(emitter.emitUpdateEvent());
 
     m_window.clear(sf::Color(128, 128, 128));
 
-    m_widgetTree->draw(m_window, root);
+    m_widgetTree->draw(m_window, stack);
     m_window.display();
   }
 
+  stack.exitCoordSystem();
 }
