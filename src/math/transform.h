@@ -70,6 +70,9 @@ public:
     return Transform(position, scale);
   }
 
+  const Point& getPosition() const { return m_position; }
+  const Vec&   getScale()    const { return m_scale; }
+
 private:
   Vec m_position;
   Vec m_scale;

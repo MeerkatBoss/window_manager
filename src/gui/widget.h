@@ -16,11 +16,9 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "event/event.h"
 #include "event/event_handler.h"
 
-#include "event/keys.h"
-#include "math/transform.h"
+#include "math/transform_stack.h"
 #include "math/vec.h"
 
 namespace gui
@@ -35,21 +33,18 @@ public:
   {
   }
 
-
   const math::Transform& transform() const { return m_transform; }
         math::Transform& transform()       { return m_transform; }
 
   size_t getId() const { return m_id; }
 
   virtual void draw(sf::RenderTarget& draw_target,
-              const math::Transform&  parent_transform = math::Transform()) = 0;
+                    math::TransformStack& transform_stack) = 0;
 
   virtual ~Widget() = default;
 
 protected:
-  virtual bool containsPoint(
-                  const math::Point& point,
-                  const math::Transform&  parent_transform = math::Transform());
+  virtual bool containsPoint(const math::Point& point) const;
                           
 private:
   static size_t s_idCounter;

@@ -33,7 +33,7 @@ struct Vec
   Vec& operator=(const Vec& other) = default;
 
   Vec(const sf::Vector2f& sf_vector) : x(sf_vector.x), y(sf_vector.y) {}
-  operator sf::Vector2f()
+  operator sf::Vector2f() const
   {
     return sf::Vector2f(x, y);
   }
