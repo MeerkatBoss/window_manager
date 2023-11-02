@@ -12,8 +12,8 @@
 #ifndef __MATH_VEC_H
 #define __MATH_VEC_H
 
-#include <cmath>
 #include <SFML/System/Vector2.hpp>
+#include <cmath>
 
 namespace math
 {
@@ -33,15 +33,12 @@ struct Vec
   Vec& operator=(const Vec& other) = default;
 
   Vec(const sf::Vector2f& sf_vector) : x(sf_vector.x), y(sf_vector.y) {}
-  operator sf::Vector2f() const
-  {
-    return sf::Vector2f(x, y);
-  }
+  operator sf::Vector2f() const { return sf::Vector2f(x, y); }
 
   ~Vec()
   {
-    x   = NAN;
-    y   = NAN;
+    x = NAN;
+    y = NAN;
   }
 
   Vec& operator+=(const Vec& other)
@@ -65,10 +62,7 @@ struct Vec
     return *this;
   }
 
-  Vec& operator/=(double scale)
-  {
-    return *this *= 1.0 / scale;
-  }
+  Vec& operator/=(double scale) { return *this *= 1.0 / scale; }
 
   Vec operator+(const Vec& other) const { return Vec(*this) += other; }
   Vec operator-(const Vec& other) const { return Vec(*this) -= other; }
@@ -79,10 +73,7 @@ struct Vec
   Vec operator-() const { return *this * (-1); }
   Vec operator+() const { return *this; }
 
-  double length() const
-  {
-    return hypot(x, y);
-  }
+  double length() const { return hypot(x, y); }
 
   bool isZero() const { return fabs(length()) < EPS; }
 
@@ -117,15 +108,12 @@ private:
   static constexpr double EPS = 1e-6;
 };
 
-inline Vec operator*(double scale, const Vec& vec) { return vec * scale; }
+inline Vec  operator*(double scale, const Vec& vec) { return vec * scale; }
 inline bool operator==(const Vec& lhs, const Vec& rhs)
 {
   return (lhs - rhs).isZero();
 }
-inline bool operator!=(const Vec& lhs, const Vec& rhs)
-{
-  return !(lhs == rhs);
-}
+inline bool operator!=(const Vec& lhs, const Vec& rhs) { return !(lhs == rhs); }
 
 using Point = Vec;
 

@@ -37,88 +37,19 @@ public:
     }
   }
 
-  virtual bool onEvent(const event::Event& event) override
-  {
-    if (m_focused && needEventForward(event))
-    {
-      for (size_t i = 0; i < m_widgets.getSize(); ++i)
-      {
-        if (m_widgets[i]->onEvent(event))
-        {
-          return true;
-        }
-      }
-    }
-
-    return Widget::onEvent(event);
-  }
+  virtual bool onEvent(const event::Event& event) override;
 
   virtual bool onMouseMoved(const math::Vec&      position,
-                            math::TransformStack& transform_stack) override
-  {
-    m_focused = containsPoint(position, transform_stack);
+                            math::TransformStack& transform_stack) override;
 
-    transform_stack.enterCoordSystem(getLocalTransform());
+  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
 
-    bool handled = false;
-    for (size_t i = 0; i < m_widgets.getSize(); ++i)
-    {
-      handled |= m_widgets[i]->onMouseMoved(position, transform_stack);
-    }
+  virtual bool onUpdate(double delta_time) override;
 
-    transform_stack.exitCoordSystem();
+  virtual void draw(sf::RenderTarget&     draw_target,
+                    math::TransformStack& transform_stack) override;
 
-    return Widget::onMouseMoved(position, transform_stack) || handled;
-  }
-
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override
-  {
-    bool handled = false;
-
-    for (size_t i = 0; i < m_widgets.getSize(); ++i)
-    {
-      handled |= m_widgets[i]->onMouseReleased(mouse_button);
-    }
-
-    return Widget::onMouseReleased(mouse_button) || handled;
-  }
-
-  virtual bool onUpdate(double delta_time) override
-  {
-    bool handled = false;
-    for (size_t i = 0; i < m_widgets.getSize(); ++i)
-    {
-      handled |= m_widgets[i]->onUpdate(delta_time);
-    }
-
-    return Widget::onUpdate(delta_time) || handled;
-  }
-
-  void draw(sf::RenderTarget&     draw_target,
-            math::TransformStack& transform_stack) override
-  {
-    if (m_widgets.isEmpty())
-    {
-      return;
-    }
-
-    transform_stack.enterCoordSystem(getLocalTransform());
-    for (size_t i = m_widgets.getSize(); i > 0; --i)
-    {
-      m_widgets[i - 1]->draw(draw_target, transform_stack);
-    }
-    transform_stack.exitCoordSystem();
-  }
-
-  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override
-  {
-    getLayoutBox()->updateParent(parent_box);
-    size_t widget_count = m_widgets.getSize();
-    for (size_t i = 0; i < widget_count; ++i)
-    {
-      m_widgets[i]->onLayoutUpdate(*getLayoutBox());
-    }
-  }
+  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override;
 
 protected:
   bool isFocused(void) const { return m_focused; }
@@ -134,23 +65,7 @@ protected:
 
   void addWidget(Widget* widget) { m_widgets.pushBack(widget); }
 
-  bool needEventForward(const event::Event& event) const
-  {
-    size_t type = event.getEventType();
-    if (type == event::EventType::MouseMove || type == event::EventType::Update)
-    {
-      return false;
-    }
-    if (type != event::EventType::MouseButton)
-    {
-      return true;
-    }
-
-    event::KeyState key_state =
-        static_cast<const event::MouseButtonEvent&>(event).buttonState;
-
-    return key_state != event::KeyState::Released;
-  }
+  bool needEventForward(const event::Event& event) const;
 
 private:
   util::DynArray<Widget*> m_widgets;

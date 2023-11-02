@@ -72,6 +72,6 @@ private:
   bool              m_hovered;
 };
 
-} // namespace ui
+} // namespace gui
 
 #endif /* button.h */

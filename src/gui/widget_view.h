@@ -28,17 +28,7 @@ namespace gui
 class WidgetView : public WidgetContainer
 {
 public:
-  explicit WidgetView(Widget* widget, double zoom = 1) :
-      WidgetContainer(widget->getLayoutBox()->copy()),
-      m_widgetTransform(math::Point(), math::Vec(zoom, zoom))
-  {
-    layout::DefaultBox* widget_box =
-      new layout::DefaultBox(layout::Length(getSize().x, layout::Unit::Pixel),
-                             layout::Length(getSize().y, layout::Unit::Pixel),
-                             layout::Align::Center);
-    widget->setLayoutBox(widget_box);
-    addWidget(widget);
-  }
+  explicit WidgetView(Widget* widget, double zoom = 1);
 
   void setViewPosition(const math::Point& position);
 
@@ -49,20 +39,11 @@ public:
     m_widgetTransform.setScale(scale);
   }
 
-  math::Vec getViewScale() const
-  {
-    return m_widgetTransform.getScale();
-  }
+  math::Vec getViewScale() const { return m_widgetTransform.getScale(); }
 
-  void moveView(const math::Vec& offset)
-  {
-    m_widgetTransform.move(-offset);
-  }
+  void moveView(const math::Vec& offset) { m_widgetTransform.move(-offset); }
 
-  void zoomView(double zoom)
-  {
-    m_widgetTransform.scale(math::Vec(zoom, zoom));
-  }
+  void zoomView(double zoom) { m_widgetTransform.scale(math::Vec(zoom, zoom)); }
 
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;

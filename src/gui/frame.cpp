@@ -9,6 +9,25 @@
 namespace gui
 {
 
+Frame::Frame(const layout::Length& width, Widget* widget,
+             const sf::Texture& button_texture) :
+    WidgetContainer(widget->getLayoutBox()->copy()),
+    m_moving(false),
+    m_resizing(false),
+    m_lastPos()
+{
+  layout::DefaultBox* main_box =
+      new layout::DefaultBox(100_per, 100_per, layout::Align::Center);
+  main_box->setPadding(width);
+  widget->setLayoutBox(main_box);
+  addWidget(widget);
+
+  layout::DefaultBox* button_box =
+      new layout::DefaultBox(width, width, layout::Align::BottomRight);
+  Button* resize = new Button(*this, button_texture, button_box);
+  addWidget(resize);
+}
+
 bool Frame::onMousePressed(event::MouseKey mouse_button)
 {
   bool handled = Base::onMousePressed(mouse_button);
@@ -64,7 +83,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
   {
     const math::Vec size = getSize();
     const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                                 getLayoutBox()->getLocalOrigin().y * size.y);
+                           getLayoutBox()->getLocalOrigin().y * size.y);
 
     bool success = getLayoutBox()->setSize(local_position + origin);
     if (success)

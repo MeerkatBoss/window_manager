@@ -7,6 +7,16 @@
 
 namespace gui
 {
+WidgetView::WidgetView(Widget* widget, double zoom) :
+    WidgetContainer(widget->getLayoutBox()->copy()),
+    m_widgetTransform(math::Point(), math::Vec(zoom, zoom))
+{
+  layout::DefaultBox* widget_box = new layout::DefaultBox(
+      layout::Length(getSize().x, layout::Unit::Pixel),
+      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::Center);
+  widget->setLayoutBox(widget_box);
+  addWidget(widget);
+}
 
 void WidgetView::setViewPosition(const math::Point& position)
 {
@@ -26,7 +36,7 @@ math::Point WidgetView::getViewPosition() const
   const math::Vec widget_size =
       m_widgetTransform.transformVector(getDecorated()->getSize());
 
-  const math::Vec unit = size - widget_size;
+  const math::Vec unit   = size - widget_size;
   const math::Vec offset = m_widgetTransform.getOffset();
 
   return -math::Point(offset.x / fabs(unit.x), offset.y / fabs(unit.y));

@@ -1,7 +1,7 @@
 /**
  * @file frame.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -13,6 +13,7 @@
 #define __GUI_FRAME_H
 
 #include <SFML/Graphics/Texture.hpp>
+
 #include "event/event.h"
 #include "gui/button.h"
 #include "gui/layout/default_box.h"
@@ -25,40 +26,24 @@ namespace gui
 
 class Frame : public WidgetContainer, private ButtonController
 {
-using Base = WidgetContainer;
-public:
-  Frame(const layout::Length& width,
-        Widget* widget,
-        const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
-    m_moving(false),
-    m_resizing(false),
-    m_lastPos()
-  {
-    layout::DefaultBox* main_box =
-      new layout::DefaultBox(100_per, 100_per, layout::Align::Center);
-    main_box->setPadding(width);
-    widget->setLayoutBox(main_box);
-    addWidget(widget);
+  using Base = WidgetContainer;
 
-    layout::DefaultBox* button_box =
-      new layout::DefaultBox(width, width, layout::Align::BottomRight);
-    Button* resize = new Button(*this, button_texture, button_box);
-    addWidget(resize);
-  }
+public:
+  Frame(const layout::Length& width, Widget* widget,
+        const sf::Texture& button_texture);
 
   virtual bool onMousePressed(event::MouseKey mouse_button) override;
   virtual bool onMouseReleased(event::MouseKey mouse_button) override;
 
-  virtual bool onMouseMoved(const math::Vec& position,
+  virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;
 
-  virtual void draw(sf::RenderTarget& draw_target,
+  virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;
 
   virtual void onClick(size_t) override { m_resizing = true; }
   virtual void onRelease(size_t) override { m_resizing = false; }
-  
+
 private:
   bool      m_moving;
   bool      m_resizing;

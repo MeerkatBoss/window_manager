@@ -37,4 +37,4 @@ void Widget::onLayoutUpdate(const layout::LayoutBox& parent_box)
   m_layoutBox->updateParent(parent_box);
 }
 
-} // namespace ui
+} // namespace gui
