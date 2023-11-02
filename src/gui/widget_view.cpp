@@ -78,24 +78,15 @@ void WidgetView::draw(sf::RenderTarget&     draw_target,
   transform_stack.enterCoordSystem(getLocalTransform());
 
   transform_stack.enterCoordSystem(m_widgetTransform);
-
   m_viewTexture.clear(sf::Color(100, 100, 100));
   getDecorated()->draw(m_viewTexture, transform_stack);
   m_viewTexture.display();
-
   transform_stack.exitCoordSystem();
 
+  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
+
   const math::Transform& real_transform = transform_stack.getCoordSystem();
-
-  const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
-
-  // TODO: This is a repeating pattern. Extract to getRectVertexArray
-  const math::Point tl(0, 0);
-  const math::Point tr(size.x, 0);
-  const math::Point bl(0, size.y);
-  const math::Point br(size.x, size.y);
 
   const math::Point real_tl = real_transform.transformPoint(tl - origin);
   const math::Point real_tr = real_transform.transformPoint(tr - origin);
@@ -107,7 +98,6 @@ void WidgetView::draw(sf::RenderTarget&     draw_target,
   array[1] = sf::Vertex(real_tr, real_tr);
   array[2] = sf::Vertex(real_bl, real_bl);
   array[3] = sf::Vertex(real_br, real_br);
-
   draw_target.draw(array, &m_viewTexture.getTexture());
 
   transform_stack.exitCoordSystem();

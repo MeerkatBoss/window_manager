@@ -178,43 +178,34 @@ void Canvas::draw(sf::RenderTarget& draw_target,
                   math::TransformStack& transform_stack)
 {
   m_renderTexture.display();
+  
+  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+
+  const math::Vec tex_size(m_renderTexture.getSize().x,
+                           m_renderTexture.getSize().y);
+  const auto [tex_tl, tex_tr, tex_bl, tex_br] = layout::getRect(tex_size);
+
+  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
 
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
-  const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
-
-  const math::Point tl(0, 0);
-  const math::Point tr(size.x, 0);
-  const math::Point bl(0, size.y);
-  const math::Point br(size.x, size.y);
-
-  const sf::Vector2u& tex_size = m_renderTexture.getSize();
-
-  const math::Point tex_tl(0, 0);
-  const math::Point tex_tr(tex_size.x, 0);
-  const math::Point tex_bl(0, tex_size.y);
-  const math::Point tex_br(tex_size.x, tex_size.y);
-
   sf::VertexArray array(sf::TriangleStrip, 4);
-
   array[0] = sf::Vertex(real_transform.transformPoint(tl - origin), tex_tl);
   array[1] = sf::Vertex(real_transform.transformPoint(tr - origin), tex_tr);
   array[2] = sf::Vertex(real_transform.transformPoint(bl - origin), tex_bl);
   array[3] = sf::Vertex(real_transform.transformPoint(br - origin), tex_br);
-
   draw_target.draw(array, &m_renderTexture.getTexture());
 
   Widget* tool_widget = m_palette.getActiveTool()->getWidget();
-
-  transform_stack.enterCoordSystem(getTextureTransform());
-
   if (tool_widget)
+  {
+    transform_stack.enterCoordSystem(getTextureTransform());
     tool_widget->draw(draw_target, transform_stack);
+    transform_stack.exitCoordSystem();
 
-  transform_stack.exitCoordSystem();
+  }
+
   transform_stack.exitCoordSystem();
 }
 

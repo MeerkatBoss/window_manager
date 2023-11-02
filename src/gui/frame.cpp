@@ -103,21 +103,13 @@ bool Frame::onMouseMoved(const math::Vec&      position,
 void Frame::draw(sf::RenderTarget&     draw_target,
                  math::TransformStack& transform_stack)
 {
-  transform_stack.enterCoordSystem(getLocalTransform());
+  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
 
+  transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
-  const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
-
-  const math::Point tl(0, 0);
-  const math::Point tr(size.x, 0);
-  const math::Point bl(0, size.y);
-  const math::Point br(size.x, size.y);
-
   sf::VertexArray array(sf::TriangleStrip, 4);
-
   array[0] =
       sf::Vertex(real_transform.transformPoint(tl - origin), sf::Color::Blue);
   array[1] =
@@ -126,8 +118,8 @@ void Frame::draw(sf::RenderTarget&     draw_target,
       sf::Vertex(real_transform.transformPoint(bl - origin), sf::Color::Blue);
   array[3] =
       sf::Vertex(real_transform.transformPoint(br - origin), sf::Color::Blue);
-
   draw_target.draw(array);
+
   transform_stack.exitCoordSystem();
 
   Base::draw(draw_target, transform_stack);
