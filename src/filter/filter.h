@@ -1,7 +1,7 @@
 /**
  * @file filter.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -12,8 +12,8 @@
 #ifndef __FILTER_FILTER_H
 #define __FILTER_FILTER_H
 
-#include "gui/canvas.h"
 #include "filter/filter_mask.h"
+#include "gui/canvas.h"
 
 namespace filter
 {

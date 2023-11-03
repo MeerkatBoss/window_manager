@@ -1,4 +1,5 @@
 #include "gui/widget.h"
+
 #include "math/transform.h"
 #include "math/vec.h"
 
@@ -22,6 +23,7 @@ bool Widget::containsPoint(const math::Point&    point,
   const math::Vec local_size = getSize();
   const math::Vec origin(getLayoutBox()->getLocalOrigin().x * local_size.x,
                          getLayoutBox()->getLocalOrigin().y * local_size.y);
+
   const math::Point local_point = transform.restorePoint(point) + origin;
 
   const bool contains = 0 <= local_point.x && local_point.x <= local_size.x &&

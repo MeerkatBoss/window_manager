@@ -1,8 +1,10 @@
 #include "tool/fill_tool.h"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <cstddef>
+
 #include "tool/tool.h"
 #include "tool/tool_palette.h"
 #include "util/dyn_array.h"
@@ -15,8 +17,7 @@ struct Vec2u
   size_t x, y;
 };
 
-void FillTool::onMainButton(ButtonState state,
-                            const math::Vec& pos,
+void FillTool::onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas)
 {
   if (state != ButtonState::Pressed)
@@ -25,7 +26,6 @@ void FillTool::onMainButton(ButtonState state,
   }
 
   const sf::Color& fg_color = m_palette.getForegroundColor();
-  // const sf::Color& bg_color = m_palette.getBackgroundColor();
 
   sf::Image image = canvas.getRenderTexture().getTexture().copyToImage();
 

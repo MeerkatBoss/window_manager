@@ -1,6 +1,6 @@
 #include <cstdio>
-#include "app.h"
 
+#include "app.h"
 #include "math/vec.h"
 
 int main()

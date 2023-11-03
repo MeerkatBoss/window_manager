@@ -1,7 +1,7 @@
 /**
  * @file event.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -13,10 +13,10 @@
 #define __EVENT_EVENT_H
 
 #include <cstddef>
-#include "math/transform_stack.h"
-#include "math/vec.h"
 
 #include "event/keys.h"
+#include "math/transform_stack.h"
+#include "math/vec.h"
 
 namespace event
 {
@@ -41,8 +41,10 @@ public:
   size_t getEventType() const { return m_eventType; }
 
   virtual ~Event() = default;
+
 protected:
   Event(size_t eventType) : m_eventType(eventType) {}
+
 private:
   const size_t m_eventType;
 };
@@ -52,14 +54,13 @@ class MouseButtonEvent : public Event
 public:
   static const size_t TypeId = MouseButton;
 
-  MouseButtonEvent(KeyState key_state,
-                   MouseKey mouse_key) :
-    Event(TypeId),
-    buttonState(key_state),
-    button(mouse_key) {}
-  
-  const KeyState  buttonState;
-  const MouseKey  button;
+  MouseButtonEvent(KeyState key_state, MouseKey mouse_key) :
+      Event(TypeId), buttonState(key_state), button(mouse_key)
+  {
+  }
+
+  const KeyState buttonState;
+  const MouseKey button;
 };
 
 class MouseMoveEvent : public Event
@@ -67,11 +68,12 @@ class MouseMoveEvent : public Event
 public:
   static const size_t TypeId = MouseMove;
 
-  MouseMoveEvent(const math::Vec& mouse_position,
-                 math::TransformStack& stack) :
-    Event(TypeId), position(mouse_position), transform_stack(stack) {}
+  MouseMoveEvent(const math::Vec& mouse_position, math::TransformStack& stack) :
+      Event(TypeId), position(mouse_position), transform_stack(stack)
+  {
+  }
 
-  const math::Vec position;
+  const math::Vec       position;
   math::TransformStack& transform_stack;
 };
 
@@ -81,7 +83,9 @@ public:
   static const size_t TypeId = Keyboard;
 
   KeyboardEvent(KeyState state, KeyboardKey keyboard_key) :
-    Event(TypeId), keyState(state), key(keyboard_key) {}
+      Event(TypeId), keyState(state), key(keyboard_key)
+  {
+  }
 
   const KeyState    keyState;
   const KeyboardKey key;
@@ -93,7 +97,9 @@ public:
   static const size_t TypeId = Update;
 
   UpdateEvent(double delta_time_seconds) :
-    Event(TypeId), deltaTimeSec(delta_time_seconds) {}
+      Event(TypeId), deltaTimeSec(delta_time_seconds)
+  {
+  }
 
   const double deltaTimeSec;
 };

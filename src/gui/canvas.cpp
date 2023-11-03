@@ -1,6 +1,8 @@
 #include "gui/canvas.h"
+
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+
 #include "event/keys.h"
 #include "filter/filter.h"
 #include "filter/filter_palette.h"
@@ -30,15 +32,15 @@ bool Canvas::onMousePressed(event::MouseKey mouse_button)
 {
   if (mouse_button == event::MouseKey::Right)
   {
-    m_palette.getActiveTool()->onSecondaryButton(
-        tool::ButtonState::Pressed, m_lastPos, *this);
+    m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Pressed,
+                                                 m_lastPos, *this);
   }
 
   if (mouse_button != event::MouseKey::Left || !m_hovered)
     return false;
 
-  m_palette.getActiveTool()->onMainButton(
-      tool::ButtonState::Pressed, m_lastPos, *this);
+  m_palette.getActiveTool()->onMainButton(tool::ButtonState::Pressed, m_lastPos,
+                                          *this);
 
   return true;
 }
@@ -47,27 +49,27 @@ bool Canvas::onMouseReleased(event::MouseKey mouse_button)
 {
   if (mouse_button == event::MouseKey::Right)
   {
-    m_palette.getActiveTool()->onSecondaryButton(
-        tool::ButtonState::Released, m_lastPos, *this);
+    m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Released,
+                                                 m_lastPos, *this);
   }
 
   if (mouse_button != event::MouseKey::Left)
     return false;
 
-  m_palette.getActiveTool()->onMainButton(
-      tool::ButtonState::Released, m_lastPos, *this);
+  m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
+                                          m_lastPos, *this);
 
   return true;
 }
 
-bool Canvas::onMouseMoved(const math::Vec& position,
+bool Canvas::onMouseMoved(const math::Vec&      position,
                           math::TransformStack& transform_stack)
 {
   transform_stack.enterCoordSystem(getLocalTransform());
   transform_stack.enterCoordSystem(getTextureTransform());
 
-  const math::Vec local_position = transform_stack.getCoordSystem()
-                                    .restorePoint(position);
+  const math::Vec local_position =
+      transform_stack.getCoordSystem().restorePoint(position);
   transform_stack.exitCoordSystem();
   transform_stack.exitCoordSystem();
 
@@ -91,23 +93,23 @@ bool Canvas::onKeyboardPressed(event::KeyboardKey key)
 
   if (key == KeyboardKey::LShift || key == KeyboardKey::RShift)
   {
-    m_palette.getActiveTool()->onModifier1(
-        tool::ButtonState::Pressed, m_lastPos, *this);
+    m_palette.getActiveTool()->onModifier1(tool::ButtonState::Pressed,
+                                           m_lastPos, *this);
     return true;
   }
 
   if (key == KeyboardKey::LControl || key == KeyboardKey::RControl)
   {
-    m_palette.getActiveTool()->onModifier2(
-        tool::ButtonState::Pressed, m_lastPos, *this);
+    m_palette.getActiveTool()->onModifier2(tool::ButtonState::Pressed,
+                                           m_lastPos, *this);
     m_control = true;
     return true;
   }
 
   if (key == KeyboardKey::LAlt || key == KeyboardKey::RAlt)
   {
-    m_palette.getActiveTool()->onModifier3(
-        tool::ButtonState::Pressed, m_lastPos, *this);
+    m_palette.getActiveTool()->onModifier3(tool::ButtonState::Pressed,
+                                           m_lastPos, *this);
     return true;
   }
 
@@ -133,8 +135,8 @@ bool Canvas::onKeyboardPressed(event::KeyboardKey key)
 
   if (m_control && key == KeyboardKey::W)
   {
-    filter::Filter* filter = m_filters.getFilter(
-                              size_t(filter::FilterId::Brightness));
+    filter::Filter* filter =
+        m_filters.getFilter(size_t(filter::FilterId::Brightness));
 
     filter->applyFilter(*this, m_mask);
 
@@ -151,34 +153,34 @@ bool Canvas::onKeyboardReleased(event::KeyboardKey key)
 
   if (key == KeyboardKey::LShift || key == KeyboardKey::RShift)
   {
-    m_palette.getActiveTool()->onModifier1(
-        tool::ButtonState::Released, m_lastPos, *this);
+    m_palette.getActiveTool()->onModifier1(tool::ButtonState::Released,
+                                           m_lastPos, *this);
     return true;
   }
 
   if (key == KeyboardKey::LControl || key == KeyboardKey::RControl)
   {
-    m_palette.getActiveTool()->onModifier2(
-        tool::ButtonState::Released, m_lastPos, *this);
+    m_palette.getActiveTool()->onModifier2(tool::ButtonState::Released,
+                                           m_lastPos, *this);
     m_control = false;
     return true;
   }
 
   if (key == KeyboardKey::LAlt || key == KeyboardKey::RAlt)
   {
-    m_palette.getActiveTool()->onModifier3(
-        tool::ButtonState::Released, m_lastPos, *this);
+    m_palette.getActiveTool()->onModifier3(tool::ButtonState::Released,
+                                           m_lastPos, *this);
     return true;
   }
 
   return false;
 }
 
-void Canvas::draw(sf::RenderTarget& draw_target,
+void Canvas::draw(sf::RenderTarget&     draw_target,
                   math::TransformStack& transform_stack)
 {
   m_renderTexture.display();
-  
+
   const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
 
   const math::Vec tex_size(m_renderTexture.getSize().x,
@@ -203,11 +205,9 @@ void Canvas::draw(sf::RenderTarget& draw_target,
     transform_stack.enterCoordSystem(getTextureTransform());
     tool_widget->draw(draw_target, transform_stack);
     transform_stack.exitCoordSystem();
-
   }
 
   transform_stack.exitCoordSystem();
 }
-
 
 } // namespace gui

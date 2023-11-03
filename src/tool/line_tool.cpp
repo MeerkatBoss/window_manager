@@ -1,8 +1,10 @@
 #include "tool/line_tool.h"
+
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+
 #include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "math/transform.h"
@@ -17,12 +19,15 @@ namespace tool
 class LinePreview : public gui::Widget
 {
 public:
-  LinePreview(const math::Vec* start_pos,
-              const math::Vec* end_pos) :
-    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
-    m_startPos(*start_pos), m_endPos(*end_pos) {}
+  LinePreview(const math::Vec* start_pos, const math::Vec* end_pos) :
+      gui::Widget(
+          new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
+      m_startPos(*start_pos),
+      m_endPos(*end_pos)
+  {
+  }
 
-  virtual void draw(sf::RenderTarget& draw_target,
+  virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override
   {
     const math::Transform& cur_transform = transform_stack.getCoordSystem();
@@ -44,9 +49,14 @@ private:
 };
 
 LineTool::LineTool(const ToolPalette& palette) :
-  m_active(false),
-  m_preview(new LinePreview(&m_startPos, &m_endPos)),
-  m_aligned(false), m_startPos(), m_endPos(), m_palette(palette) {}
+    m_active(false),
+    m_preview(new LinePreview(&m_startPos, &m_endPos)),
+    m_aligned(false),
+    m_startPos(),
+    m_endPos(),
+    m_palette(palette)
+{
+}
 
 void LineTool::updateEndPos(const math::Vec& pos)
 {
@@ -70,15 +80,14 @@ void LineTool::updateEndPos(const math::Vec& pos)
   }
 }
 
-void LineTool::onMainButton(ButtonState state,
-                            const math::Vec& pos,
+void LineTool::onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas)
 {
   if (state == ButtonState::Pressed)
   {
-    m_active = true;
+    m_active   = true;
     m_startPos = pos;
-    m_endPos = pos;
+    m_endPos   = pos;
   }
   else
   {
@@ -86,8 +95,7 @@ void LineTool::onMainButton(ButtonState state,
   }
 }
 
-void LineTool::onModifier1(ButtonState state,
-                           const math::Vec& pos,
+void LineTool::onModifier1(ButtonState state, const math::Vec& pos,
                            gui::Canvas&)
 {
   m_aligned = (state == ButtonState::Pressed);
@@ -117,9 +125,6 @@ void LineTool::onConfirm(const math::Vec& pos, gui::Canvas& canvas)
   canvas.getRenderTexture().draw(array);
 }
 
-void LineTool::onCancel(const math::Vec&, gui::Canvas&)
-{
-  m_active = false;
-}
+void LineTool::onCancel(const math::Vec&, gui::Canvas&) { m_active = false; }
 
 } // namespace tool

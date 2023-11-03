@@ -1,7 +1,7 @@
 /**
  * @file fill_tool.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -23,8 +23,7 @@ class FillTool : public Tool
 public:
   FillTool(const ToolPalette& palette) : m_palette(palette) {}
 
-  virtual void onMainButton(ButtonState state,
-                            const math::Vec& pos,
+  virtual void onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas) override;
 
 private:

@@ -1,7 +1,7 @@
 /**
  * @file filter_mask.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -21,25 +21,17 @@ class FilterMask
 {
 public:
   FilterMask(size_t width, size_t height) :
-    m_mask(new bool[width * height]),
-    m_width(width),
-    m_height(height)
+      m_mask(new bool[width * height]), m_width(width), m_height(height)
   {
     fill(false);
   }
 
-  ~FilterMask()
-  {
-    delete[] m_mask;
-  }
+  ~FilterMask() { delete[] m_mask; }
 
   size_t getWidth() const { return m_width; }
   size_t getHeight() const { return m_height; }
 
-  bool getPixel(size_t x, size_t y) const
-  {
-    return m_mask[y * m_width + x];
-  }
+  bool getPixel(size_t x, size_t y) const { return m_mask[y * m_width + x]; }
   void setPixel(size_t x, size_t y, bool value)
   {
     m_mask[y * m_width + x] = value;

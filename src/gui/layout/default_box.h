@@ -59,7 +59,6 @@ public:
       m_localOrigin(other.m_localOrigin),
       m_parentSize(1, 1)
   {
-
   }
 
   void setPadding(const Length& padding)
@@ -104,10 +103,7 @@ public:
   virtual bool setPosition(const math::Point& position) override;
   virtual bool setLocalOrigin(const math::Point& position) override;
 
-  virtual LayoutBox* copy(void) const override
-  {
-    return new DefaultBox(*this);
-  }
+  virtual LayoutBox* copy(void) const override { return new DefaultBox(*this); }
 
 private:
   Align  m_align;
@@ -125,7 +121,7 @@ private:
 
   math::Vec m_localOrigin;
 
-  math::Vec   m_parentSize;
+  math::Vec m_parentSize;
 };
 
 } // namespace layout

@@ -1,7 +1,7 @@
 /**
  * @file rectangle_tool.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -22,17 +22,12 @@ class RectangleTool : public Tool
 {
 public:
   RectangleTool(const ToolPalette& palette);
-  virtual ~RectangleTool() override
-  {
-    delete m_preview;
-  }
+  virtual ~RectangleTool() override { delete m_preview; }
 
-  virtual void onMainButton(ButtonState state,
-                            const math::Vec& pos,
+  virtual void onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas) override;
 
-  virtual void onModifier1(ButtonState state,
-                           const math::Vec& pos,
+  virtual void onModifier1(ButtonState state, const math::Vec& pos,
                            gui::Canvas& canvas) override;
 
   virtual void onMove(const math::Vec& pos, gui::Canvas& canvas) override;

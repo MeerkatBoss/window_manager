@@ -60,8 +60,6 @@ public:
 
   virtual void onLayoutUpdate(const layout::LayoutBox& parent_box);
 
-protected:
-
 private:
   static size_t s_idCounter;
 

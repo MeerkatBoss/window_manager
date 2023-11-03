@@ -1,7 +1,7 @@
 /**
  * @file event_handler.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -26,8 +26,10 @@ public:
   virtual bool onMousePressed(MouseKey) { return false; }
   virtual bool onMouseReleased(MouseKey) { return false; }
 
-  virtual bool onMouseMoved(const math::Vec&,
-                            math::TransformStack&) { return false; }
+  virtual bool onMouseMoved(const math::Vec&, math::TransformStack&)
+  {
+    return false;
+  }
 
   virtual bool onKeyboardPressed(KeyboardKey) { return false; }
   virtual bool onKeyboardReleased(KeyboardKey) { return false; }

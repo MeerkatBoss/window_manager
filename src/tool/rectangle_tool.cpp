@@ -1,12 +1,13 @@
 #include "tool/rectangle_tool.h"
+
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+
 #include "gui/layout/default_box.h"
 #include "gui/widget.h"
-#include "tool/tool_palette.h"
 #include "math/vec.h"
-
+#include "tool/tool_palette.h"
 
 namespace tool
 {
@@ -14,12 +15,15 @@ namespace tool
 class RectPreview : public gui::Widget
 {
 public:
-  RectPreview(const math::Vec* start_pos,
-              const math::Vec* end_pos) :
-    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
-    m_startPos(*start_pos), m_endPos(*end_pos) {}
+  RectPreview(const math::Vec* start_pos, const math::Vec* end_pos) :
+      gui::Widget(
+          new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
+      m_startPos(*start_pos),
+      m_endPos(*end_pos)
+  {
+  }
 
-  virtual void draw(sf::RenderTarget& draw_target,
+  virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override
   {
     const math::Transform& cur_transform = transform_stack.getCoordSystem();
@@ -44,9 +48,14 @@ private:
 };
 
 RectangleTool::RectangleTool(const ToolPalette& palette) :
-  m_active(false),
-  m_preview(new RectPreview(&m_startPos, &m_endPos)),
-  m_square(false), m_startPos(), m_endPos(), m_palette(palette) {}
+    m_active(false),
+    m_preview(new RectPreview(&m_startPos, &m_endPos)),
+    m_square(false),
+    m_startPos(),
+    m_endPos(),
+    m_palette(palette)
+{
+}
 
 void RectangleTool::updateEndPos(const math::Vec& pos)
 {
@@ -73,15 +82,14 @@ void RectangleTool::updateEndPos(const math::Vec& pos)
   }
 }
 
-void RectangleTool::onMainButton(ButtonState state,
-                                 const math::Vec& pos,
+void RectangleTool::onMainButton(ButtonState state, const math::Vec& pos,
                                  gui::Canvas& canvas)
 {
   if (state == ButtonState::Pressed)
   {
-    m_active = true;
+    m_active   = true;
     m_startPos = pos;
-    m_endPos = pos;
+    m_endPos   = pos;
   }
   else
   {
@@ -89,8 +97,7 @@ void RectangleTool::onMainButton(ButtonState state,
   }
 }
 
-void RectangleTool::onModifier1(ButtonState state,
-                                const math::Vec& pos,
+void RectangleTool::onModifier1(ButtonState state, const math::Vec& pos,
                                 gui::Canvas&)
 {
   m_square = (state == ButtonState::Pressed);

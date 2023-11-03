@@ -1,9 +1,11 @@
 #include "tool/polyline_tool.h"
+
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/Vertex.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+
 #include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "math/transform.h"
@@ -20,14 +22,17 @@ class PolylinePreview : public gui::Widget
 {
 public:
   PolylinePreview(const util::DynArray<math::Vec>* points) :
-    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
-    m_points(*points) {}
+      gui::Widget(
+          new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
+      m_points(*points)
+  {
+  }
 
-  void draw(sf::RenderTarget& draw_target,
+  void draw(sf::RenderTarget&     draw_target,
             math::TransformStack& transform_stack) override
   {
     const math::Transform& cur_transform = transform_stack.getCoordSystem();
-    sf::VertexArray array(sf::LineStrip, m_points.getSize());
+    sf::VertexArray        array(sf::LineStrip, m_points.getSize());
 
     for (size_t i = 0; i < m_points.getSize(); ++i)
     {
@@ -37,20 +42,21 @@ public:
 
     draw_target.draw(array);
   }
+
 private:
   const util::DynArray<math::Vec>& m_points;
 };
 
 PolylineTool::PolylineTool(const ToolPalette& palette) :
-  m_points(), m_active(false),
-  m_preview(new PolylinePreview(&m_points)),
-  m_palette(palette)
+    m_points(),
+    m_active(false),
+    m_preview(new PolylinePreview(&m_points)),
+    m_palette(palette)
 {
   m_points.pushBack(math::Vec());
 }
 
-void PolylineTool::onMainButton(ButtonState state,
-                                const math::Vec& pos,
+void PolylineTool::onMainButton(ButtonState state, const math::Vec& pos,
                                 gui::Canvas& canvas)
 {
   if (state != ButtonState::Pressed)
@@ -68,7 +74,7 @@ void PolylineTool::onMainButton(ButtonState state,
     m_active = true;
     return;
   }
-  
+
   m_points[m_points.getSize() - 2] = m_points[0];
   onConfirm(m_points[0], canvas);
 }
@@ -88,8 +94,6 @@ void PolylineTool::onConfirm(const math::Vec&, gui::Canvas& canvas)
     return;
   }
 
-  // m_points[m_points.getSize() - 1] = pos;
-  
   sf::VertexArray array(sf::LineStrip, m_points.getSize() - 1);
 
   for (size_t i = 0; i < m_points.getSize() - 1; ++i)

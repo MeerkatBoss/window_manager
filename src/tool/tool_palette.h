@@ -35,12 +35,12 @@ public:
 
   const sf::Color& getBackgroundColor() const { return m_bgColor; }
 
-  void selectBrushTool()     { m_activeTool = m_brush; }
-  void selectLineTool()      { m_activeTool = m_line; }
+  void selectBrushTool() { m_activeTool = m_brush; }
+  void selectLineTool() { m_activeTool = m_line; }
   void selectRectangleTool() { m_activeTool = m_rectangle; }
-  void selectEllipseTool()   { m_activeTool = m_ellipse; }
-  void selectPolylineTool()  { m_activeTool = m_polyline; }
-  void selectFillTool()      { m_activeTool = m_fill; }
+  void selectEllipseTool() { m_activeTool = m_ellipse; }
+  void selectPolylineTool() { m_activeTool = m_polyline; }
+  void selectFillTool() { m_activeTool = m_fill; }
 
 private:
   BrushTool*     m_brush;

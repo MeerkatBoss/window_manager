@@ -1,7 +1,7 @@
 /**
  * @file polyline_tool.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -26,13 +26,9 @@ class PolylineTool : public Tool
 public:
   PolylineTool(const ToolPalette& palette);
 
-  virtual ~PolylineTool() override
-  {
-    delete m_preview;
-  }
+  virtual ~PolylineTool() override { delete m_preview; }
 
-  virtual void onMainButton(ButtonState state,
-                            const math::Vec& pos,
+  virtual void onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas) override;
 
   virtual void onMove(const math::Vec& pos, gui::Canvas& canvas) override;
@@ -48,8 +44,8 @@ public:
 
 private:
   util::DynArray<math::Vec> m_points;
-  bool m_active;
-  gui::Widget* m_preview;
+  bool                      m_active;
+  gui::Widget*              m_preview;
 
   const ToolPalette& m_palette;
 };

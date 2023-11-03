@@ -1,9 +1,10 @@
+#include "event/event_emitter.h"
+
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 
 #include "event/event.h"
-#include "event/event_emitter.h"
 #include "event/keys.h"
 
 namespace event
@@ -15,9 +16,12 @@ static inline MouseKey getMouseKey(sf::Mouse::Button sf_button)
 
   switch (sf_button)
   {
-  case Button::Left:   return MouseKey::Left;
-  case Button::Right:  return MouseKey::Right;
-  case Button::Middle: return MouseKey::Left;
+  case Button::Left:
+    return MouseKey::Left;
+  case Button::Right:
+    return MouseKey::Right;
+  case Button::Middle:
+    return MouseKey::Left;
 
   case Button::XButton1:
   case Button::XButton2:
@@ -37,10 +41,11 @@ Event* EventEmitter::emitEvent(const sf::Event& sf_event)
       sf_event.type == sf::Event::MouseButtonReleased)
   {
     const sf::Event::MouseButtonEvent& sf_mouse_event = sf_event.mouseButton;
-    MouseKey key = getMouseKey(sf_mouse_event.button);
+
+    MouseKey key      = getMouseKey(sf_mouse_event.button);
     KeyState keyState = sf_event.type == sf::Event::MouseButtonPressed
-                          ? KeyState::Pressed
-                          : KeyState::Released;
+                            ? KeyState::Pressed
+                            : KeyState::Released;
 
     return new MouseButtonEvent(keyState, key);
   }
@@ -57,19 +62,22 @@ Event* EventEmitter::emitEvent(const sf::Event& sf_event)
       sf_event.type == sf::Event::KeyReleased)
   {
     const sf::Event::KeyEvent& sf_key_event = sf_event.key;
-    KeyboardKey key = getKeyboardKey(sf_key_event.code);
-    KeyState keyState = sf_event.type == sf::Event::KeyPressed
-                          ? KeyState::Pressed
-                          : KeyState::Released;
+
+    KeyboardKey key      = getKeyboardKey(sf_key_event.code);
+    KeyState    keyState = sf_event.type == sf::Event::KeyPressed
+                            ? KeyState::Pressed
+                            : KeyState::Released;
     return new KeyboardEvent(keyState, key);
   }
-  
+
   return nullptr;
 }
 
 static KeyboardKey getKeyboardKey(sf::Keyboard::Key key)
 {
-#define CONVERT_KEY(key) case sf::Keyboard::key: return KeyboardKey::key
+#define CONVERT_KEY(key)                                                       \
+  case sf::Keyboard::key:                                                      \
+    return KeyboardKey::key
   switch (key)
   {
     CONVERT_KEY(A);
@@ -175,9 +183,10 @@ static KeyboardKey getKeyboardKey(sf::Keyboard::Key key)
     CONVERT_KEY(Pause);
 
     CONVERT_KEY(KeyCount);
-    
-    case sf::Keyboard::Unknown:
-    default: return KeyboardKey::KeyCount;
+
+  case sf::Keyboard::Unknown:
+  default:
+    return KeyboardKey::KeyCount;
   }
 #undef CONVERT_KEY
 }

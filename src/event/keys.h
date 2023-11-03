@@ -1,7 +1,7 @@
 /**
  * @file keys.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -23,7 +23,10 @@ enum class KeyState
 
 enum class MouseKey
 {
-  Left, Middle, Right, Extra
+  Left,
+  Middle,
+  Right,
+  Extra
 };
 
 enum class KeyboardKey

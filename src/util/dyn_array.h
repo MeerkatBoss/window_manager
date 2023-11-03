@@ -1,7 +1,7 @@
 /**
  * @file dyn_array.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -17,14 +17,12 @@
 namespace util
 {
 
-template<typename TElem>
+template <typename TElem>
 class DynArray
 {
 public:
   DynArray() :
-    m_data(new TElem[defaultCapacity]),
-    m_capacity(defaultCapacity),
-    m_size(0)
+      m_data(new TElem[defaultCapacity]), m_capacity(defaultCapacity), m_size(0)
   {
   }
 
@@ -41,30 +39,27 @@ public:
   }
 
   DynArray(size_t size, const TElem& val) :
-    m_size(size), m_capacity(defaultCapacity)
+      m_size(size), m_capacity(defaultCapacity)
   {
     while (m_capacity <= m_size)
     {
       m_capacity <<= 1;
     }
     m_data = new TElem[m_capacity];
-    
+
     for (size_t i = 0; i < m_size; ++i)
     {
       m_data = val;
     }
   }
 
-  ~DynArray()
-  {
-    delete[] m_data;
-  }
+  ~DynArray() { delete[] m_data; }
 
   void pushBack(const TElem& elem)
   {
     tryGrow();
     m_data[m_size] = elem;
-    
+
     ++m_size;
   }
 
@@ -100,24 +95,25 @@ public:
   }
 
   size_t getSize() const { return m_size; }
-  bool isEmpty() const { return m_size == 0; }
+  bool   isEmpty() const { return m_size == 0; }
 
   const TElem& operator[](size_t index) const { return m_data[index]; }
-        TElem& operator[](size_t index)       { return m_data[index]; }
+  TElem&       operator[](size_t index) { return m_data[index]; }
 
 private:
-  static constexpr size_t defaultSize = 64;
+  static constexpr size_t defaultSize     = 64;
   static constexpr size_t defaultCapacity = defaultSize / sizeof(TElem);
-  TElem* m_data;
-  size_t m_capacity;
-  size_t m_size;
+  TElem*                  m_data;
+  size_t                  m_capacity;
+  size_t                  m_size;
 
   void tryGrow()
   {
-    if (m_size < m_capacity) return;
+    if (m_size < m_capacity)
+      return;
 
-    const size_t new_capacity = 2*m_capacity;
-    TElem* new_data = new TElem[new_capacity];
+    const size_t new_capacity = 2 * m_capacity;
+    TElem*       new_data     = new TElem[new_capacity];
     for (size_t i = 0; i < m_size; ++i)
       new_data[i] = m_data[i];
     delete[] m_data;
@@ -128,10 +124,11 @@ private:
 
   void tryShrink()
   {
-    if (2*m_size >= m_capacity / 2) return;
+    if (2 * m_size >= m_capacity / 2)
+      return;
 
     const size_t new_capacity = m_capacity / 2;
-    TElem* new_data = new TElem[new_capacity];
+    TElem*       new_data     = new TElem[new_capacity];
     for (size_t i = 0; i < m_size; ++i)
       new_data[i] = m_data[i];
     delete[] m_data;

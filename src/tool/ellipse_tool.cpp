@@ -1,8 +1,10 @@
 #include "tool/ellipse_tool.h"
+
 #include <SFML/Graphics/Vertex.hpp>
 #include <cmath>
-#include "gui/layout/default_box.h"
+
 #include "gui/canvas.h"
+#include "gui/layout/default_box.h"
 #include "gui/widget.h"
 #include "math/vec.h"
 #include "tool/tool_palette.h"
@@ -15,12 +17,15 @@ static const size_t ELLIPSE_POINTS = 40;
 class EllipsePreview : public gui::Widget
 {
 public:
-  EllipsePreview(const math::Vec* start_pos,
-              const math::Vec* end_pos) :
-    gui::Widget(new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
-    m_startPos(*start_pos), m_endPos(*end_pos) {}
+  EllipsePreview(const math::Vec* start_pos, const math::Vec* end_pos) :
+      gui::Widget(
+          new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
+      m_startPos(*start_pos),
+      m_endPos(*end_pos)
+  {
+  }
 
-  virtual void draw(sf::RenderTarget& draw_target,
+  virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override
   {
     const math::Transform& cur_transform = transform_stack.getCoordSystem();
@@ -28,17 +33,17 @@ public:
     const math::Point pos1 = cur_transform.transformPoint(m_startPos);
     const math::Point pos2 = cur_transform.transformPoint(m_endPos);
 
-    const math::Point center = (pos1 + pos2) / 2;
-    const double x_semi_axis = fabs(pos1.x - center.x);
-    const double y_semi_axis = fabs(pos1.y - center.y);
-    const double angle_step = 2 * M_PI / ELLIPSE_POINTS;
+    const math::Point center      = (pos1 + pos2) / 2;
+    const double      x_semi_axis = fabs(pos1.x - center.x);
+    const double      y_semi_axis = fabs(pos1.y - center.y);
+    const double      angle_step  = 2 * M_PI / ELLIPSE_POINTS;
 
     sf::VertexArray array(sf::LineStrip, ELLIPSE_POINTS + 1);
 
     for (size_t i = 0; i <= ELLIPSE_POINTS; ++i)
     {
-      const math::Vec pos(center.x + cos(i*angle_step)*x_semi_axis,
-                          center.y + sin(i*angle_step)*y_semi_axis);
+      const math::Vec pos(center.x + cos(i * angle_step) * x_semi_axis,
+                          center.y + sin(i * angle_step) * y_semi_axis);
 
       array[i] = sf::Vertex(pos, sf::Color::Blue);
     }
@@ -51,11 +56,15 @@ private:
   const math::Vec& m_endPos;
 };
 
-EllipseTool::EllipseTool(const ToolPalette& palette) : m_active(false),
-                       m_preview(new EllipsePreview(&m_startPos, &m_endPos)),
-                       m_circle(false), m_startPos(), m_endPos(),
-                       m_palette(palette) {}
-
+EllipseTool::EllipseTool(const ToolPalette& palette) :
+    m_active(false),
+    m_preview(new EllipsePreview(&m_startPos, &m_endPos)),
+    m_circle(false),
+    m_startPos(),
+    m_endPos(),
+    m_palette(palette)
+{
+}
 
 void EllipseTool::updateEndPos(const math::Vec& pos)
 {
@@ -82,15 +91,14 @@ void EllipseTool::updateEndPos(const math::Vec& pos)
   }
 }
 
-void EllipseTool::onMainButton(ButtonState state,
-                                 const math::Vec& pos,
-                                 gui::Canvas& canvas)
+void EllipseTool::onMainButton(ButtonState state, const math::Vec& pos,
+                               gui::Canvas& canvas)
 {
   if (state == ButtonState::Pressed)
   {
-    m_active = true;
+    m_active   = true;
     m_startPos = pos;
-    m_endPos = pos;
+    m_endPos   = pos;
   }
   else
   {
@@ -98,9 +106,8 @@ void EllipseTool::onMainButton(ButtonState state,
   }
 }
 
-void EllipseTool::onModifier1(ButtonState state,
-                                const math::Vec& pos,
-                                gui::Canvas&)
+void EllipseTool::onModifier1(ButtonState state, const math::Vec& pos,
+                              gui::Canvas&)
 {
   m_circle = (state == ButtonState::Pressed);
   if (m_active)
@@ -121,17 +128,17 @@ void EllipseTool::onConfirm(const math::Vec& pos, gui::Canvas& canvas)
   updateEndPos(pos);
   m_active = false;
 
-  const math::Point center = (m_startPos + m_endPos) / 2;
-  const double x_semi_axis = fabs(m_startPos.x - center.x);
-  const double y_semi_axis = fabs(m_endPos.y - center.y);
-  const double angle_step = 2 * M_PI / ELLIPSE_POINTS;
+  const math::Point center      = (m_startPos + m_endPos) / 2;
+  const double      x_semi_axis = fabs(m_startPos.x - center.x);
+  const double      y_semi_axis = fabs(m_endPos.y - center.y);
+  const double      angle_step  = 2 * M_PI / ELLIPSE_POINTS;
 
   sf::VertexArray array(sf::LineStrip, ELLIPSE_POINTS + 1);
 
   for (size_t i = 0; i <= ELLIPSE_POINTS; ++i)
   {
-    const math::Vec pos(center.x + cos(i*angle_step)*x_semi_axis,
-                        center.y + sin(i*angle_step)*y_semi_axis);
+    const math::Vec pos(center.x + cos(i * angle_step) * x_semi_axis,
+                        center.y + sin(i * angle_step) * y_semi_axis);
 
     array[i] = sf::Vertex(pos, m_palette.getForegroundColor());
   }
@@ -139,9 +146,6 @@ void EllipseTool::onConfirm(const math::Vec& pos, gui::Canvas& canvas)
   canvas.getRenderTexture().draw(array);
 }
 
-void EllipseTool::onCancel(const math::Vec&, gui::Canvas&)
-{
-  m_active = false;
-}
+void EllipseTool::onCancel(const math::Vec&, gui::Canvas&) { m_active = false; }
 
 } // namespace tool

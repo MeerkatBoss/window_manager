@@ -104,7 +104,7 @@ void Frame::draw(sf::RenderTarget&     draw_target,
                  math::TransformStack& transform_stack)
 {
   const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
+  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
 
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();

@@ -1,7 +1,7 @@
 /**
  * @file transform_stack.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -21,10 +21,7 @@ namespace math
 class TransformStack
 {
 public:
-  TransformStack() : m_stack()
-  {
-    m_stack.pushBack(Transform());
-  }
+  TransformStack() : m_stack() { m_stack.pushBack(Transform()); }
 
   ~TransformStack() = default;
 
@@ -35,7 +32,10 @@ public:
 
   void exitCoordSystem()
   {
-    if (m_stack.getSize() > 1) { m_stack.popBack(); }
+    if (m_stack.getSize() > 1)
+    {
+      m_stack.popBack();
+    }
   }
 
   const Transform& getCoordSystem() const { return m_stack.back(); }

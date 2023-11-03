@@ -1,7 +1,7 @@
 /**
  * @file filter_palette.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -13,6 +13,7 @@
 #define __FILTER_FILTER_PALETTE_H
 
 #include <cassert>
+
 #include "filter/brightness_filter.h"
 #include "filter/filter.h"
 #include "util/dyn_array.h"
@@ -29,10 +30,7 @@ enum class FilterId
 class FilterPalette
 {
 public:
-  FilterPalette()
-  {
-    m_filters.pushBack(new BrightnessFilter());
-  }
+  FilterPalette() { m_filters.pushBack(new BrightnessFilter()); }
 
   ~FilterPalette()
   {
@@ -58,7 +56,7 @@ public:
 
 private:
   util::DynArray<Filter*> m_filters;
-  Filter* m_lastFilter;
+  Filter*                 m_lastFilter;
 };
 
 } // namespace filter

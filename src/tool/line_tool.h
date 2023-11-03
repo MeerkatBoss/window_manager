@@ -1,7 +1,7 @@
 /**
  * @file line_tool.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -24,12 +24,10 @@ class LineTool : public Tool
 public:
   LineTool(const ToolPalette& palette);
 
-  virtual void onMainButton(ButtonState state,
-                            const math::Vec& pos,
+  virtual void onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas) override;
 
-  virtual void onModifier1(ButtonState state,
-                           const math::Vec& pos,
+  virtual void onModifier1(ButtonState state, const math::Vec& pos,
                            gui::Canvas& canvas) override;
 
   virtual void onMove(const math::Vec& pos, gui::Canvas& canvas) override;
@@ -43,10 +41,7 @@ public:
     return m_active ? m_preview : nullptr;
   }
 
-  virtual ~LineTool() override
-  {
-    delete m_preview;
-  }
+  virtual ~LineTool() override { delete m_preview; }
 
 private:
   void updateEndPos(const math::Vec& pos);

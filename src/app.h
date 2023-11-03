@@ -1,7 +1,7 @@
 /**
  * @file app.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -14,8 +14,9 @@
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include "gui/widget.h"
+
 #include "filter/filter_palette.h"
+#include "gui/widget.h"
 
 class App
 {
@@ -24,11 +25,12 @@ public:
   ~App();
 
   void run(void);
-private:
-  sf::Texture      m_buttonTexture;
 
-  sf::RenderWindow m_window;
-  gui::Widget*     m_widgetTree;
+private:
+  sf::Texture m_buttonTexture;
+
+  sf::RenderWindow      m_window;
+  gui::Widget*          m_widgetTree;
   filter::FilterPalette m_filters;
 
   void setupUI();

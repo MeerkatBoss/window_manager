@@ -1,7 +1,7 @@
 /**
  * @file event_emitter.h
  * @author MeerkatBoss (solodovnikov.ia@phystech.edu)
- * 
+ *
  * @brief
  *
  * @version 0.1
@@ -14,6 +14,7 @@
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+
 #include "event/event.h"
 #include "math/transform_stack.h"
 
