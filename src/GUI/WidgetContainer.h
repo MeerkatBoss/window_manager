@@ -39,12 +39,18 @@ public:
 
   virtual bool onEvent(const event::Event& event) override;
 
+  virtual bool onMousePressed(const math::Vec&      position,
+                              event::MouseKey       mouse_button,
+                              math::TransformStack& transform_stack) override;
+
+  virtual bool onMouseReleased(const math::Vec&      position,
+                               event::MouseKey       mouse_button,
+                               math::TransformStack& transform_stack) override;
+
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;
 
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
-
-  virtual bool onUpdate(double delta_time) override;
+  virtual bool onTick(double delta_time) override;
 
   virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;

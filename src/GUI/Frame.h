@@ -32,8 +32,13 @@ public:
   Frame(const layout::Length& width, Widget* widget,
         const sf::Texture& button_texture);
 
-  virtual bool onMousePressed(event::MouseKey mouse_button) override;
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
+  virtual bool onMousePressed(const math::Vec&      position,
+                              event::MouseKey       mouse_button,
+                              math::TransformStack& transform_stack) override;
+
+  virtual bool onMouseReleased(const math::Vec&      position,
+                               event::MouseKey       mouse_button,
+                               math::TransformStack& transform_stack) override;
 
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;

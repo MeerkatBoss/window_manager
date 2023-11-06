@@ -15,6 +15,7 @@
 #include "GUI/Layout/LayoutBox.h"
 #include "GUI/Widget.h"
 #include "Math/Transform.h"
+#include "Math/TransformStack.h"
 #include "Math/Vec.h"
 
 namespace gui
@@ -37,14 +38,18 @@ public:
       Widget(layout_box),
       m_controller(controller),
       m_handleScale(handle_scale),
-      m_hovered(false),
       m_captured(false),
       m_pendingVal()
   {
   }
 
-  virtual bool onMousePressed(event::MouseKey mouse_button) override;
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
+  virtual bool onMousePressed(const math::Vec&      position,
+                              event::MouseKey       mouse_button,
+                              math::TransformStack& transform_stack) override;
+
+  virtual bool onMouseReleased(const math::Vec&      position,
+                               event::MouseKey       mouse_button,
+                               math::TransformStack& transform_stack) override;
 
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;
@@ -53,6 +58,9 @@ public:
                     math::TransformStack& transform_stack) override;
 
 private:
+  math::Vec getSliderVal(const math::Vec& position,
+                         math::TransformStack& transform_stack) const;
+
   void drawBackground(sf::RenderTarget&     draw_target,
                       math::TransformStack& transform_stack);
 
@@ -61,7 +69,6 @@ private:
 
   SliderController& m_controller;
   math::Vec         m_handleScale;
-  bool              m_hovered;
   bool              m_captured;
   math::Vec         m_pendingVal;
 };

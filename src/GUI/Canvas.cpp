@@ -25,38 +25,65 @@ math::Transform Canvas::getTextureTransform() const
   return math::Transform(math::Vec(), tex_scale);
 }
 
-bool Canvas::onMousePressed(event::MouseKey mouse_button)
+bool Canvas::onMousePressed(const math::Vec&      position,
+                            event::MouseKey       mouse_button,
+                            math::TransformStack& transform_stack)
 {
+  if (!containsPoint(position, transform_stack))
+  {
+    return false;
+  }
+
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(getTextureTransform());
+
+  const math::Vec local_position =
+      transform_stack.getCoordSystem().restorePoint(position);
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
+
+  if (mouse_button == event::MouseKey::Left)
+  {
+    m_palette.getActiveTool()->onMainButton(tool::ButtonState::Pressed,
+                                            local_position, *this);
+    return true;
+  }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Pressed,
-                                                 m_lastPos, *this);
+                                                 local_position, *this);
+    return true;
   }
 
-  if (mouse_button != event::MouseKey::Left || !m_hovered)
-    return false;
-
-  m_palette.getActiveTool()->onMainButton(tool::ButtonState::Pressed, m_lastPos,
-                                          *this);
-
-  return true;
+  return false;
 }
 
-bool Canvas::onMouseReleased(event::MouseKey mouse_button)
+bool Canvas::onMouseReleased(const math::Vec&      position,
+                             event::MouseKey       mouse_button,
+                             math::TransformStack& transform_stack)
 {
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(getTextureTransform());
+
+  const math::Vec local_position =
+      transform_stack.getCoordSystem().restorePoint(position);
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
+
+  if (mouse_button == event::MouseKey::Left)
+  {
+    m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
+                                            local_position, *this);
+    return true;
+  }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Released,
-                                                 m_lastPos, *this);
+                                                 local_position, *this);
+    return true;
   }
 
-  if (mouse_button != event::MouseKey::Left)
-    return false;
-
-  m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
-                                          m_lastPos, *this);
-
-  return true;
+  return false;
 }
 
 bool Canvas::onMouseMoved(const math::Vec&      position,
@@ -70,16 +97,7 @@ bool Canvas::onMouseMoved(const math::Vec&      position,
   transform_stack.exitCoordSystem();
   transform_stack.exitCoordSystem();
 
-  double max_x = m_renderTexture.getSize().x;
-  double max_y = m_renderTexture.getSize().y;
-
-  m_hovered = (0 < local_position.x && local_position.x < max_x &&
-               0 < local_position.y && local_position.y < max_y);
-
-  if (m_hovered)
-    m_lastPos = local_position;
-
-  m_palette.getActiveTool()->onMove(m_lastPos, *this);
+  m_palette.getActiveTool()->onMove(local_position, *this);
 
   return true;
 }

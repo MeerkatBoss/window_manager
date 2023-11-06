@@ -23,8 +23,16 @@ class EventHandler
 public:
   virtual bool onEvent(const Event& event);
 
-  virtual bool onMousePressed(MouseKey) { return false; }
-  virtual bool onMouseReleased(MouseKey) { return false; }
+  virtual bool onMousePressed(const math::Vec&, MouseKey, math::TransformStack&)
+  {
+    return false;
+  }
+
+  virtual bool onMouseReleased(const math::Vec&, MouseKey,
+                               math::TransformStack&)
+  {
+    return false;
+  }
 
   virtual bool onMouseMoved(const math::Vec&, math::TransformStack&)
   {
@@ -34,7 +42,7 @@ public:
   virtual bool onKeyboardPressed(KeyboardKey) { return false; }
   virtual bool onKeyboardReleased(KeyboardKey) { return false; }
 
-  virtual bool onUpdate(double) { return false; }
+  virtual bool onTick(double) { return false; }
 
   virtual ~EventHandler() = default;
 };

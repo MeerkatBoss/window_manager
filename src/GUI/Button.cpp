@@ -9,13 +9,18 @@
 #include "GUI/Layout/LayoutBox.h"
 #include "GUI/Widget.h"
 #include "Math/Transform.h"
+#include "Math/TransformStack.h"
 #include "Math/Vec.h"
 
 namespace gui
 {
 
-bool Button::onMousePressed(event::MouseKey mouse_button)
+bool Button::onMousePressed(const math::Vec& position,
+                            event::MouseKey mouse_button,
+                            math::TransformStack& transform_stack)
 {
+  onMouseMoved(position, transform_stack);
+
   if (mouse_button != event::MouseKey::Left || !m_hovered)
     return false;
 
@@ -25,8 +30,12 @@ bool Button::onMousePressed(event::MouseKey mouse_button)
   return true;
 }
 
-bool Button::onMouseReleased(event::MouseKey mouse_button)
+bool Button::onMouseReleased(const math::Vec& position,
+                            event::MouseKey mouse_button,
+                            math::TransformStack& transform_stack)
 {
+  onMouseMoved(position, transform_stack);
+
   if (mouse_button != event::MouseKey::Left || !m_pressed)
     return false;
 
@@ -42,7 +51,7 @@ bool Button::onMouseMoved(const math::Vec&      position,
   return m_hovered = containsPoint(position, transform_stack);
 }
 
-bool Button::onUpdate(double delta_time)
+bool Button::onTick(double delta_time)
 {
   if (m_pressed)
   {

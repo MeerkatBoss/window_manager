@@ -54,13 +54,21 @@ class MouseButtonEvent : public Event
 public:
   static const size_t TypeId = MouseButton;
 
-  MouseButtonEvent(KeyState key_state, MouseKey mouse_key) :
-      Event(TypeId), buttonState(key_state), button(mouse_key)
+  MouseButtonEvent(KeyState key_state, MouseKey mouse_key,
+                   const math::Vec&      mouse_position,
+                   math::TransformStack& stack) :
+      Event(TypeId),
+      buttonState(key_state),
+      button(mouse_key),
+      position(mouse_position),
+      transform_stack(stack)
   {
   }
 
-  const KeyState buttonState;
-  const MouseKey button;
+  const KeyState        buttonState;
+  const MouseKey        button;
+  const math::Vec       position;
+  math::TransformStack& transform_stack;
 };
 
 class MouseMoveEvent : public Event

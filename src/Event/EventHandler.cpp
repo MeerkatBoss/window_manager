@@ -16,9 +16,13 @@ bool EventHandler::onEvent(const Event& event)
         static_cast<const MouseButtonEvent&>(event);
 
     if (mouse_event.buttonState == KeyState::Pressed)
-      return onMousePressed(mouse_event.button);
+      return onMousePressed(mouse_event.position,
+                            mouse_event.button,
+                            mouse_event.transform_stack);
     else
-      return onMouseReleased(mouse_event.button);
+      return onMouseReleased(mouse_event.position,
+                             mouse_event.button,
+                             mouse_event.transform_stack);
   }
 
   if (event_type == MouseMove)
@@ -26,10 +30,8 @@ bool EventHandler::onEvent(const Event& event)
     const MouseMoveEvent& mouse_event =
         static_cast<const MouseMoveEvent&>(event);
 
-    math::TransformStack& transform_stack =
-        const_cast<MouseMoveEvent&>(mouse_event).transform_stack;
-
-    return onMouseMoved(mouse_event.position, transform_stack);
+    return onMouseMoved(mouse_event.position,
+                        mouse_event.transform_stack);
   }
 
   if (event_type == Keyboard)
@@ -47,7 +49,7 @@ bool EventHandler::onEvent(const Event& event)
   {
     const UpdateEvent& update_event = static_cast<const UpdateEvent&>(event);
 
-    return onUpdate(update_event.deltaTimeSec);
+    return onTick(update_event.deltaTimeSec);
   }
 
   return false;

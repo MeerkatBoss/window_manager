@@ -12,6 +12,7 @@
 #include "GUI/Canvas.h"
 #include "GUI/Frame.h"
 #include "GUI/Layout/DefaultBox.h"
+#include "GUI/Layout/LayoutBox.h"
 #include "GUI/Scrollbar.h"
 #include "GUI/Slider.h"
 #include "GUI/ToolWidget.h"
@@ -94,7 +95,7 @@ void App::runMainLoop()
   sf::Event event;
 
   math::TransformStack stack;
-  event::EventEmitter  emitter(stack);
+  event::EventEmitter  emitter(m_window, stack);
 
   const math::Vec win_offset(m_window.getSize().x / 2,
                              m_window.getSize().y / 2);

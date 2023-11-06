@@ -28,31 +28,36 @@ Frame::Frame(const layout::Length& width, Widget* widget,
   addWidget(resize);
 }
 
-bool Frame::onMousePressed(event::MouseKey mouse_button)
+bool Frame::onMousePressed(const math::Vec&      position,
+                           event::MouseKey       mouse_button,
+                           math::TransformStack& transform_stack)
 {
-  bool handled = Base::onMousePressed(mouse_button);
+  bool handled = Base::onMousePressed(position, mouse_button, transform_stack);
   if (handled)
   {
     return true;
   }
 
-  if (mouse_button != event::MouseKey::Left || !isFocused())
-    return false;
+  if (mouse_button == event::MouseKey::Left &&
+      containsPoint(position, transform_stack))
+  {
+    m_moving = true;
+    return true;
+  }
 
-  m_moving = true;
-
-  return true;
+  return false;
 }
 
-bool Frame::onMouseReleased(event::MouseKey mouse_button)
+bool Frame::onMouseReleased(const math::Vec&      position,
+                            event::MouseKey       mouse_button,
+                            math::TransformStack& transform_stack)
 {
-  bool handled = Base::onMouseReleased(mouse_button);
+  bool handled = Base::onMouseReleased(position, mouse_button, transform_stack);
 
   if (mouse_button != event::MouseKey::Left || !m_moving)
     return handled;
 
   m_moving = false;
-
   return true;
 }
 

@@ -46,6 +46,43 @@ math::Point WidgetView::getViewPosition() const
       .5 - (offset.y - size.y / 2 + widget_size.y / 2) / fabs(unit.y));
 }
 
+bool WidgetView::onMousePressed(const math::Vec&      position,
+                                event::MouseKey       mouse_button,
+                                math::TransformStack& transform_stack)
+{
+  if (containsPoint(position, transform_stack))
+  {
+    transform_stack.enterCoordSystem(getLocalTransform());
+    transform_stack.enterCoordSystem(m_widgetTransform);
+
+    bool handled =
+        getDecorated()->onMousePressed(position, mouse_button, transform_stack);
+
+    transform_stack.exitCoordSystem();
+    transform_stack.exitCoordSystem();
+
+    return handled;
+  }
+
+  return false;
+}
+
+bool WidgetView::onMouseReleased(const math::Vec&      position,
+                                 event::MouseKey       mouse_button,
+                                 math::TransformStack& transform_stack)
+{
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(m_widgetTransform);
+
+  bool handled =
+      getDecorated()->onMouseReleased(position, mouse_button, transform_stack);
+
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
+
+  return handled;
+}
+
 bool WidgetView::onMouseMoved(const math::Vec&      position,
                               math::TransformStack& transform_stack)
 {
@@ -67,7 +104,7 @@ bool WidgetView::onMouseMoved(const math::Vec&      position,
   transform_stack.exitCoordSystem();
   transform_stack.exitCoordSystem();
 
-  return Widget::onMouseMoved(position, transform_stack) || handled;
+  return handled;
 }
 
 void WidgetView::draw(sf::RenderTarget&     draw_target,

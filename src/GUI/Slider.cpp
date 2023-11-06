@@ -23,32 +23,9 @@ static double clamp(double left, double right, double x)
 
 static bool doubleEq(double a, double b) { return fabs(a - b) < 1e-6; }
 
-bool Slider::onMousePressed(event::MouseKey mouse_button)
+math::Vec Slider::getSliderVal(const math::Vec& position,
+                       math::TransformStack& transform_stack) const
 {
-  if (mouse_button != event::MouseKey::Left || !m_hovered)
-    return false;
-
-  m_captured = true;
-  m_controller.setValue(getId(), m_pendingVal);
-
-  return true;
-}
-
-bool Slider::onMouseReleased(event::MouseKey mouse_button)
-{
-  if (mouse_button != event::MouseKey::Left || !m_captured)
-    return false;
-
-  m_captured = false;
-
-  return true;
-}
-
-bool Slider::onMouseMoved(const math::Vec&      position,
-                          math::TransformStack& transform_stack)
-{
-  m_hovered = containsPoint(position, transform_stack);
-
   transform_stack.enterCoordSystem(getLocalTransform());
 
   const math::Vec size = getSize();
@@ -73,14 +50,47 @@ bool Slider::onMouseMoved(const math::Vec&      position,
   const double x_val = doubleEq(min_x, max_x) ? 0 : x_coord / (max_x - min_x);
   const double y_val = doubleEq(min_y, max_y) ? 0 : y_coord / (max_y - min_y);
 
-  m_pendingVal = math::Vec(x_val, y_val);
+  return math::Vec(x_val, y_val);
+}
 
-  if (m_captured)
+bool Slider::onMousePressed(const math::Vec&      position,
+                            event::MouseKey       mouse_button,
+                            math::TransformStack& transform_stack)
+{
+  if (mouse_button == event::MouseKey::Left &&
+      containsPoint(position, transform_stack))
   {
-    m_controller.setValue(getId(), m_pendingVal);
+    m_captured = true;
+    m_controller.setValue(getId(), getSliderVal(position, transform_stack));
+    return true;
   }
 
-  return m_hovered;
+  return false;
+}
+
+bool Slider::onMouseReleased(const math::Vec&,
+                            event::MouseKey       mouse_button,
+                            math::TransformStack&)
+{
+  if (mouse_button == event::MouseKey::Left && m_captured)
+  {
+    m_captured = false;
+    return true;
+  }
+
+  return false;
+}
+
+bool Slider::onMouseMoved(const math::Vec&      position,
+                          math::TransformStack& transform_stack)
+{
+  if (m_captured)
+  {
+    m_controller.setValue(getId(), getSliderVal(position, transform_stack));
+    return true;
+  }
+
+  return containsPoint(position, transform_stack);
 }
 
 void Slider::draw(sf::RenderTarget&     draw_target,
