@@ -33,7 +33,7 @@ public:
 class Slider : public Widget
 {
 public:
-  Slider(SliderController& controller, layout::LayoutBox* layout_box,
+  Slider(SliderController& controller, const layout::LayoutBox& layout_box,
          const math::Vec& handle_scale) :
       Widget(layout_box),
       m_controller(controller),

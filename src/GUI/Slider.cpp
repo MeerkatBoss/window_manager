@@ -108,7 +108,7 @@ void Slider::drawBackground(sf::RenderTarget&     draw_target,
                             math::TransformStack& transform_stack)
 {
   const sf::Color color(70, 70, 70);
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Transform& transform = transform_stack.getCoordSystem();
 

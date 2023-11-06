@@ -24,7 +24,7 @@ namespace gui
 class WidgetContainer : public Widget
 {
 public:
-  WidgetContainer(layout::LayoutBox* layout_box) :
+  WidgetContainer(const layout::LayoutBox& layout_box) :
       Widget(layout_box), m_widgets(), m_focused(false)
   {
   }

@@ -29,9 +29,9 @@ class ToolWidget : public WidgetContainer
 
 public:
   ToolWidget(Widget* contained, tool::ToolPalette* palette) :
-      Base(contained->getLayoutBox()->clone()), m_palette(palette)
+      Base(contained->getLayoutBox()), m_palette(palette)
   {
-    contained->setLayoutBox(new layout::DefaultBox(100_per, 100_per));
+    contained->setLayoutBox(layout::DefaultBox(100_per, 100_per));
     addWidget(contained);
   }
 

@@ -8,12 +8,12 @@
 namespace gui
 {
 WidgetView::WidgetView(Widget* widget, double zoom) :
-    WidgetContainer(widget->getLayoutBox()->clone()),
+    WidgetContainer(widget->getLayoutBox()),
     m_widgetTransform(math::Point(), math::Vec(zoom, zoom))
 {
-  layout::DefaultBox* widget_box = new layout::DefaultBox(
+  layout::DefaultBox widget_box(
       layout::Length(getSize().x, layout::Unit::Pixel),
-      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::TopLeft);
+      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::Free);
   widget->setLayoutBox(widget_box);
   addWidget(widget);
 }
@@ -124,7 +124,7 @@ void WidgetView::draw(sf::RenderTarget&     draw_target,
   m_viewTexture.display();
   transform_stack.exitCoordSystem();
 
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 

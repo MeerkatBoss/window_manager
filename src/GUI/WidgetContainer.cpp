@@ -111,11 +111,11 @@ void WidgetContainer::draw(sf::RenderTarget&     draw_target,
 
 void WidgetContainer::onLayoutUpdate(const layout::LayoutBox& parent_box)
 {
-  getLayoutBox()->updateParent(parent_box);
+  getLayoutBox().updateParent(parent_box);
   size_t widget_count = m_widgets.getSize();
   for (size_t i = 0; i < widget_count; ++i)
   {
-    m_widgets[i]->onLayoutUpdate(*getLayoutBox());
+    m_widgets[i]->onLayoutUpdate(getLayoutBox());
   }
 }
 

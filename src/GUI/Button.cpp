@@ -64,7 +64,7 @@ bool Button::onTick(double delta_time)
 void Button::draw(sf::RenderTarget&     draw_target,
                   math::TransformStack& transform_stack)
 {
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Vec tex_size(m_texture.getSize().x, m_texture.getSize().y);
   const auto [tex_tl, tex_tr, tex_bl, tex_br] = layout::getRect(tex_size);

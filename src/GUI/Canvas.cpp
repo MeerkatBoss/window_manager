@@ -196,7 +196,7 @@ void Canvas::draw(sf::RenderTarget&     draw_target,
 {
   m_renderTexture.display();
 
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Vec tex_size(m_renderTexture.getSize().x,
                            m_renderTexture.getSize().y);

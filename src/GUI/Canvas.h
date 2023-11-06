@@ -37,7 +37,8 @@ class Canvas : public Widget
 {
 public:
   Canvas(tool::ToolPalette& palette, filter::FilterPalette& filters,
-         size_t width_px, size_t height_px, layout::LayoutBox* layout_box) :
+         size_t width_px, size_t height_px,
+         const layout::LayoutBox& layout_box) :
       Widget(layout_box),
       m_renderTexture(),
       m_palette(palette),

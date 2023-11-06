@@ -11,19 +11,17 @@ namespace gui
 
 Frame::Frame(const layout::Length& width, Widget* widget,
              const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()->clone()),
+    WidgetContainer(widget->getLayoutBox()),
     m_moving(false),
     m_resizing(false),
     m_lastPos()
 {
-  layout::DefaultBox* main_box =
-      new layout::DefaultBox(100_per, 100_per, layout::Align::Center);
-  main_box->setPadding(width);
+  layout::DefaultBox main_box(100_per, 100_per, layout::Align::Center);
+  main_box.setPadding(width);
   widget->setLayoutBox(main_box);
   addWidget(widget);
 
-  layout::DefaultBox* button_box =
-      new layout::DefaultBox(width, width, layout::Align::BottomRight);
+  layout::DefaultBox button_box(width, width, layout::Align::BottomRight);
   Button* resize = new Button(*this, button_texture, button_box);
   addWidget(resize);
 }
@@ -78,7 +76,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
 
   if (m_moving)
   {
-    getLayoutBox()->setPosition(parent_position - m_lastPos);
+    getLayoutBox().setPosition(parent_position - m_lastPos);
 
     return true;
   }
@@ -88,13 +86,13 @@ bool Frame::onMouseMoved(const math::Vec&      position,
   {
     const math::Vec size = getSize();
 
-    bool success = getLayoutBox()->setSize(local_position);
+    bool success = getLayoutBox().setSize(local_position);
     if (success)
     {
       size_t widget_count = getWidgets().getSize();
       for (size_t i = 0; i < widget_count; ++i)
       {
-        getWidgets()[i]->onLayoutUpdate(*getLayoutBox());
+        getWidgets()[i]->onLayoutUpdate(getLayoutBox());
       }
     }
     return true;
@@ -106,7 +104,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
 void Frame::draw(sf::RenderTarget&     draw_target,
                  math::TransformStack& transform_stack)
 {
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();

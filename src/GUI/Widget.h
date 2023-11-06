@@ -27,8 +27,8 @@ namespace gui
 class Widget : public event::EventHandler
 {
 public:
-  Widget(layout::LayoutBox* layout_box) :
-      m_layoutBox(layout_box), m_id(++s_idCounter)
+  Widget(const layout::LayoutBox& layout_box) :
+      m_layoutBox(layout_box.clone()), m_id(++s_idCounter)
   {
   }
 
@@ -36,14 +36,14 @@ public:
 
   virtual ~Widget() { delete m_layoutBox; }
 
-  void setLayoutBox(layout::LayoutBox* layout_box)
+  void setLayoutBox(const layout::LayoutBox& layout_box)
   {
     delete m_layoutBox;
-    m_layoutBox = layout_box;
+    m_layoutBox = layout_box.clone();
   }
 
-  layout::LayoutBox*       getLayoutBox(void) { return m_layoutBox; }
-  const layout::LayoutBox* getLayoutBox(void) const { return m_layoutBox; }
+  layout::LayoutBox&       getLayoutBox(void) { return *m_layoutBox; }
+  const layout::LayoutBox& getLayoutBox(void) const { return *m_layoutBox; }
 
   math::Vec   getSize() const { return m_layoutBox->getSize(); }
   math::Point getPosition() const { return m_layoutBox->getPosition(); }

@@ -41,7 +41,7 @@ class Button : public Widget
 {
 public:
   Button(ButtonController& controller, const sf::Texture& texture,
-         layout::LayoutBox* layout_box) :
+         const layout::LayoutBox& layout_box) :
       Widget(layout_box),
       m_texture(texture),
       m_textureTransform(
