@@ -51,15 +51,12 @@ bool Slider::onMouseMoved(const math::Vec&      position,
 
   transform_stack.enterCoordSystem(getLocalTransform());
 
-  // TODO: Extract to getScaledOrigin
   const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
   const math::Vec handle_size(size.x * m_handleScale.x,
                               size.y * m_handleScale.y);
 
   const math::Vec local_position =
-      transform_stack.getCoordSystem().restorePoint(position) + origin;
+      transform_stack.getCoordSystem().restorePoint(position);
 
   transform_stack.exitCoordSystem();
 
@@ -102,16 +99,14 @@ void Slider::drawBackground(sf::RenderTarget&     draw_target,
 {
   const sf::Color color(70, 70, 70);
   const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
 
   const math::Transform& transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] = sf::Vertex(transform.transformPoint(tl - origin), color);
-  array[1] = sf::Vertex(transform.transformPoint(tr - origin), color);
-  array[2] = sf::Vertex(transform.transformPoint(bl - origin), color);
-  array[3] = sf::Vertex(transform.transformPoint(br - origin), color);
-
+  array[0] = sf::Vertex(transform.transformPoint(tl), color);
+  array[1] = sf::Vertex(transform.transformPoint(tr), color);
+  array[2] = sf::Vertex(transform.transformPoint(bl), color);
+  array[3] = sf::Vertex(transform.transformPoint(br), color);
   draw_target.draw(array);
 }
 
@@ -119,9 +114,7 @@ void Slider::drawHandle(sf::RenderTarget&     draw_target,
                         math::TransformStack& transform_stack)
 {
   const sf::Color color(200, 200, 200);
-  const math::Vec size   = getSize();
-  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
-
+  const math::Vec size = getSize();
   const math::Vec handle_size(size.x * m_handleScale.x,
                               size.y * m_handleScale.y);
   const auto [tl, tr, bl, br] = layout::getRect(handle_size);
@@ -138,14 +131,10 @@ void Slider::drawHandle(sf::RenderTarget&     draw_target,
   const math::Transform& transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] =
-      sf::Vertex(transform.transformPoint(tl + handle_pos - origin), color);
-  array[1] =
-      sf::Vertex(transform.transformPoint(tr + handle_pos - origin), color);
-  array[2] =
-      sf::Vertex(transform.transformPoint(bl + handle_pos - origin), color);
-  array[3] =
-      sf::Vertex(transform.transformPoint(br + handle_pos - origin), color);
+  array[0] = sf::Vertex(transform.transformPoint(tl + handle_pos), color);
+  array[1] = sf::Vertex(transform.transformPoint(tr + handle_pos), color);
+  array[2] = sf::Vertex(transform.transformPoint(bl + handle_pos), color);
+  array[3] = sf::Vertex(transform.transformPoint(br + handle_pos), color);
 
   draw_target.draw(array);
 }

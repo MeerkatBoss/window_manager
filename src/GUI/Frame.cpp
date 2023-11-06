@@ -11,7 +11,7 @@ namespace gui
 
 Frame::Frame(const layout::Length& width, Widget* widget,
              const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
+    WidgetContainer(widget->getLayoutBox()->clone()),
     m_moving(false),
     m_resizing(false),
     m_lastPos()
@@ -82,10 +82,8 @@ bool Frame::onMouseMoved(const math::Vec&      position,
   if (m_resizing)
   {
     const math::Vec size = getSize();
-    const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                           getLayoutBox()->getLocalOrigin().y * size.y);
 
-    bool success = getLayoutBox()->setSize(local_position + origin);
+    bool success = getLayoutBox()->setSize(local_position);
     if (success)
     {
       size_t widget_count = getWidgets().getSize();
@@ -104,20 +102,15 @@ void Frame::draw(sf::RenderTarget&     draw_target,
                  math::TransformStack& transform_stack)
 {
   const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
 
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] =
-      sf::Vertex(real_transform.transformPoint(tl - origin), sf::Color::Blue);
-  array[1] =
-      sf::Vertex(real_transform.transformPoint(tr - origin), sf::Color::Blue);
-  array[2] =
-      sf::Vertex(real_transform.transformPoint(bl - origin), sf::Color::Blue);
-  array[3] =
-      sf::Vertex(real_transform.transformPoint(br - origin), sf::Color::Blue);
+  array[0] = sf::Vertex(real_transform.transformPoint(tl), sf::Color::Blue);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr), sf::Color::Blue);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl), sf::Color::Blue);
+  array[3] = sf::Vertex(real_transform.transformPoint(br), sf::Color::Blue);
   draw_target.draw(array);
 
   transform_stack.exitCoordSystem();

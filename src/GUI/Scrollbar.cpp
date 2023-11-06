@@ -10,7 +10,7 @@ namespace gui
 
 Scrollbar::Scrollbar(layout::Length width, Widget* widget,
                      const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
+    WidgetContainer(widget->getLayoutBox()->clone()),
     m_view(new WidgetView(widget, 2)),
     m_offset(.5, .5)
 {
@@ -78,7 +78,7 @@ void Scrollbar::updateViewPosition()
   if (m_offset.y > 1)
     m_offset.y = 1;
 
-  m_view->setViewPosition(math::Vec(m_offset.x - .5, m_offset.y - .5));
+  m_view->setViewPosition(math::Vec(m_offset.x, m_offset.y));
 }
 
 void Scrollbar::onClick(size_t button_id)

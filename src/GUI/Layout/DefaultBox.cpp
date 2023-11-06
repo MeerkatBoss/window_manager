@@ -1,5 +1,7 @@
 #include "GUI/Layout/DefaultBox.h"
+#include <cstdio>
 
+#include "GUI/Layout/Units.h"
 #include "Math/Vec.h"
 
 namespace gui
@@ -54,8 +56,6 @@ static double clampToZero(double val)
 void DefaultBox::updateParent(const LayoutBox& parent_box)
 {
   m_parentSize = parent_box.getSize();
-  math::Vec parent_origin(m_parentSize.x * parent_box.getLocalOrigin().x,
-                          m_parentSize.y * parent_box.getLocalOrigin().y);
 
   if (m_align == Align::Free)
   {
@@ -63,8 +63,6 @@ void DefaultBox::updateParent(const LayoutBox& parent_box)
   }
 
   math::Vec size = getSize();
-
-  const math::Vec origin(m_localOrigin.x * size.x, m_localOrigin.y * size.y);
 
   math::Vec full_size(getPixels(m_width, m_parentSize.x),
                       getPixels(m_height, m_parentSize.y));
@@ -99,8 +97,6 @@ void DefaultBox::updateParent(const LayoutBox& parent_box)
     break;
   }
 
-  pos += origin - parent_origin;
-
   m_posX = fromPixels(pos.x + pad_left, m_posX.unit, m_parentSize.x);
   m_posY = fromPixels(pos.y + pad_top, m_posY.unit, m_parentSize.y);
 }
@@ -131,12 +127,6 @@ bool DefaultBox::setPosition(const math::Point& position)
   return true;
 }
 
-bool DefaultBox::setLocalOrigin(const math::Point& position)
-{
-  m_localOrigin = position;
-  return true;
-}
-
 math::Vec DefaultBox::getSize() const
 {
   const double full_width  = getPixels(m_width, m_parentSize.x);
@@ -147,6 +137,7 @@ math::Vec DefaultBox::getSize() const
   const double pad_vert = getPixels(m_paddingTop, m_parentSize.y) +
                           getPixels(m_paddingBottom, m_parentSize.y);
 
+
   return math::Vec(clampToZero(full_width - pad_horiz),
                    clampToZero(full_height - pad_vert));
 }
@@ -156,8 +147,6 @@ math::Point DefaultBox::getPosition() const
   return math::Point(getPixels(m_posX, m_parentSize.x),
                      getPixels(m_posY, m_parentSize.y));
 }
-
-math::Point DefaultBox::getLocalOrigin() const { return m_localOrigin; }
 
 } // namespace layout
 

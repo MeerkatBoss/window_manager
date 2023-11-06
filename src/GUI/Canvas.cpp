@@ -19,13 +19,10 @@ namespace gui
 math::Transform Canvas::getTextureTransform() const
 {
   const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
-
   const math::Vec tex_scale(size.x / m_renderTexture.getSize().x,
                             size.y / m_renderTexture.getSize().y);
 
-  return math::Transform(-origin, tex_scale);
+  return math::Transform(math::Vec(), tex_scale);
 }
 
 bool Canvas::onMousePressed(event::MouseKey mouse_button)
@@ -187,16 +184,14 @@ void Canvas::draw(sf::RenderTarget&     draw_target,
                            m_renderTexture.getSize().y);
   const auto [tex_tl, tex_tr, tex_bl, tex_br] = layout::getRect(tex_size);
 
-  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
-
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] = sf::Vertex(real_transform.transformPoint(tl - origin), tex_tl);
-  array[1] = sf::Vertex(real_transform.transformPoint(tr - origin), tex_tr);
-  array[2] = sf::Vertex(real_transform.transformPoint(bl - origin), tex_bl);
-  array[3] = sf::Vertex(real_transform.transformPoint(br - origin), tex_br);
+  array[0] = sf::Vertex(real_transform.transformPoint(tl), tex_tl);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr), tex_tr);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl), tex_bl);
+  array[3] = sf::Vertex(real_transform.transformPoint(br), tex_br);
   draw_target.draw(array, &m_renderTexture.getTexture());
 
   Widget* tool_widget = m_palette.getActiveTool()->getWidget();

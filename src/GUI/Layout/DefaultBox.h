@@ -40,7 +40,6 @@ public:
       m_paddingBottom(0_px),
       m_paddingLeft(0_px),
       m_paddingRight(0_px),
-      m_localOrigin(.5, .5),
       m_parentSize(1, 1)
   {
   }
@@ -56,7 +55,6 @@ public:
       m_paddingBottom(other.m_paddingBottom),
       m_paddingLeft(other.m_paddingLeft),
       m_paddingRight(other.m_paddingRight),
-      m_localOrigin(other.m_localOrigin),
       m_parentSize(1, 1)
   {
   }
@@ -97,13 +95,14 @@ public:
 
   virtual math::Vec   getSize() const override;
   virtual math::Point getPosition() const override;
-  virtual math::Point getLocalOrigin() const override;
 
   virtual bool setSize(const math::Vec& size) override;
   virtual bool setPosition(const math::Point& position) override;
-  virtual bool setLocalOrigin(const math::Point& position) override;
 
-  virtual LayoutBox* copy(void) const override { return new DefaultBox(*this); }
+  virtual LayoutBox* clone(void) const override
+  {
+    return new DefaultBox(*this);
+  }
 
 private:
   Align  m_align;
@@ -118,8 +117,6 @@ private:
   Length m_paddingBottom;
   Length m_paddingLeft;
   Length m_paddingRight;
-
-  math::Vec m_localOrigin;
 
   math::Vec m_parentSize;
 };

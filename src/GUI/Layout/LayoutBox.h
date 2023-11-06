@@ -24,24 +24,16 @@ class LayoutBox
 public:
   virtual void updateParent(const LayoutBox& parent_box) = 0;
 
-  virtual math::Vec   getSize() const        = 0;
-  virtual math::Point getPosition() const    = 0;
-  virtual math::Point getLocalOrigin() const = 0;
+  virtual math::Vec   getSize() const     = 0;
+  virtual math::Point getPosition() const = 0;
 
-  virtual bool setSize(const math::Vec& size)              = 0;
-  virtual bool setPosition(const math::Point& position)    = 0;
-  virtual bool setLocalOrigin(const math::Point& position) = 0;
+  virtual bool setSize(const math::Vec& size)           = 0;
+  virtual bool setPosition(const math::Point& position) = 0;
 
-  virtual LayoutBox* copy(void) const = 0;
+  virtual LayoutBox* clone(void) const = 0;
 
   virtual ~LayoutBox() = default;
 };
-
-inline math::Point getAbsoluteOrigin(const LayoutBox* box)
-{
-  return math::Point(box->getSize().x * box->getLocalOrigin().x,
-                     box->getSize().y * box->getLocalOrigin().y);
-}
 
 struct Rect
 {
