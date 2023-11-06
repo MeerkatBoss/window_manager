@@ -8,12 +8,12 @@
 namespace gui
 {
 WidgetView::WidgetView(Widget* widget, double zoom) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
+    WidgetContainer(widget->getLayoutBox()),
     m_widgetTransform(math::Point(), math::Vec(zoom, zoom))
 {
-  layout::DefaultBox* widget_box = new layout::DefaultBox(
+  layout::DefaultBox widget_box(
       layout::Length(getSize().x, layout::Unit::Pixel),
-      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::Center);
+      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::Free);
   widget->setLayoutBox(widget_box);
   addWidget(widget);
 }
@@ -25,9 +25,11 @@ void WidgetView::setViewPosition(const math::Point& position)
       m_widgetTransform.transformVector(getDecorated()->getSize());
 
   const math::Vec unit = size - widget_size;
-  const math::Vec offset(position.x * fabs(unit.x), position.y * fabs(unit.y));
+  const math::Vec offset(
+      (.5 - position.x) * fabs(unit.x) + size.x / 2 - widget_size.x / 2,
+      (.5 - position.y) * fabs(unit.y) + size.y / 2 - widget_size.y / 2);
 
-  m_widgetTransform.setOffset(-offset);
+  m_widgetTransform.setOffset(offset);
 }
 
 math::Point WidgetView::getViewPosition() const
@@ -39,7 +41,46 @@ math::Point WidgetView::getViewPosition() const
   const math::Vec unit   = size - widget_size;
   const math::Vec offset = m_widgetTransform.getOffset();
 
-  return -math::Point(offset.x / fabs(unit.x), offset.y / fabs(unit.y));
+  return math::Point(
+      .5 - (offset.x - size.x / 2 + widget_size.x / 2) / fabs(unit.x),
+      .5 - (offset.y - size.y / 2 + widget_size.y / 2) / fabs(unit.y));
+}
+
+bool WidgetView::onMousePressed(const math::Vec&      position,
+                                event::MouseKey       mouse_button,
+                                math::TransformStack& transform_stack)
+{
+  if (containsPoint(position, transform_stack))
+  {
+    transform_stack.enterCoordSystem(getLocalTransform());
+    transform_stack.enterCoordSystem(m_widgetTransform);
+
+    bool handled =
+        getDecorated()->onMousePressed(position, mouse_button, transform_stack);
+
+    transform_stack.exitCoordSystem();
+    transform_stack.exitCoordSystem();
+
+    return handled;
+  }
+
+  return false;
+}
+
+bool WidgetView::onMouseReleased(const math::Vec&      position,
+                                 event::MouseKey       mouse_button,
+                                 math::TransformStack& transform_stack)
+{
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(m_widgetTransform);
+
+  bool handled =
+      getDecorated()->onMouseReleased(position, mouse_button, transform_stack);
+
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
+
+  return handled;
 }
 
 bool WidgetView::onMouseMoved(const math::Vec&      position,
@@ -63,7 +104,7 @@ bool WidgetView::onMouseMoved(const math::Vec&      position,
   transform_stack.exitCoordSystem();
   transform_stack.exitCoordSystem();
 
-  return Widget::onMouseMoved(position, transform_stack) || handled;
+  return handled;
 }
 
 void WidgetView::draw(sf::RenderTarget&     draw_target,
@@ -83,15 +124,14 @@ void WidgetView::draw(sf::RenderTarget&     draw_target,
   m_viewTexture.display();
   transform_stack.exitCoordSystem();
 
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
-  const math::Point real_tl = real_transform.transformPoint(tl - origin);
-  const math::Point real_tr = real_transform.transformPoint(tr - origin);
-  const math::Point real_bl = real_transform.transformPoint(bl - origin);
-  const math::Point real_br = real_transform.transformPoint(br - origin);
+  const math::Point real_tl = real_transform.transformPoint(tl);
+  const math::Point real_tr = real_transform.transformPoint(tr);
+  const math::Point real_bl = real_transform.transformPoint(bl);
+  const math::Point real_br = real_transform.transformPoint(br);
 
   sf::VertexArray array(sf::TriangleStrip, 4);
   array[0] = sf::Vertex(real_tl, real_tl);

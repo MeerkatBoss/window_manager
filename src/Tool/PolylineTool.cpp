@@ -22,8 +22,7 @@ class PolylinePreview : public gui::Widget
 {
 public:
   PolylinePreview(const util::DynArray<math::Vec>* points) :
-      gui::Widget(
-          new gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
+      gui::Widget(gui::layout::DefaultBox(0_px, 0_px)), // TODO: replace stub
       m_points(*points)
   {
   }

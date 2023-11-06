@@ -37,13 +37,13 @@ class Canvas : public Widget
 {
 public:
   Canvas(tool::ToolPalette& palette, filter::FilterPalette& filters,
-         size_t width_px, size_t height_px, layout::LayoutBox* layout_box) :
+         size_t width_px, size_t height_px,
+         const layout::LayoutBox& layout_box) :
       Widget(layout_box),
       m_renderTexture(),
       m_palette(palette),
       m_filters(filters),
       m_mask(width_px, height_px),
-      m_hovered(false),
       m_control(false),
       m_lastPos()
   {
@@ -52,8 +52,13 @@ public:
     m_mask.fill(true);
   }
 
-  virtual bool onMousePressed(event::MouseKey mouse_button) override;
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
+  virtual bool onMousePressed(const math::Vec&      position,
+                              event::MouseKey       mouse_button,
+                              math::TransformStack& transform_stack) override;
+
+  virtual bool onMouseReleased(const math::Vec&      position,
+                               event::MouseKey       mouse_button,
+                               math::TransformStack& transform_stack) override;
 
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;
@@ -74,7 +79,6 @@ private:
   filter::FilterPalette& m_filters;
   filter::FilterMask     m_mask;
 
-  bool        m_hovered;
   bool        m_control;
   math::Point m_lastPos;
 };

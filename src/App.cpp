@@ -12,6 +12,7 @@
 #include "GUI/Canvas.h"
 #include "GUI/Frame.h"
 #include "GUI/Layout/DefaultBox.h"
+#include "GUI/Layout/LayoutBox.h"
 #include "GUI/Scrollbar.h"
 #include "GUI/Slider.h"
 #include "GUI/ToolWidget.h"
@@ -70,7 +71,7 @@ void App::setupUI()
   tool::ToolPalette* palette = new tool::ToolPalette();
 
   gui::Canvas* canvas = new gui::Canvas(
-      *palette, m_filters, 800, 800, new gui::layout::DefaultBox(15_cm, 15_cm));
+      *palette, m_filters, 800, 800, gui::layout::DefaultBox(15_cm, 15_cm));
   gui::Scrollbar* scrollbar = new gui::Scrollbar(1_cm, canvas, m_buttonTexture);
   gui::ToolWidget* menu     = new gui::ToolWidget(scrollbar, palette);
   gui::Frame*      frame    = new gui::Frame(7_mm, menu, m_buttonTexture);
@@ -94,7 +95,7 @@ void App::runMainLoop()
   sf::Event event;
 
   math::TransformStack stack;
-  event::EventEmitter  emitter(stack);
+  event::EventEmitter  emitter(m_window, stack);
 
   const math::Vec win_offset(m_window.getSize().x / 2,
                              m_window.getSize().y / 2);

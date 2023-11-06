@@ -10,42 +10,35 @@ namespace gui
 
 Scrollbar::Scrollbar(layout::Length width, Widget* widget,
                      const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
+    WidgetContainer(widget->getLayoutBox()),
     m_view(new WidgetView(widget, 2)),
     m_offset(.5, .5)
 {
   const layout::Length width2(2 * width.value, width.unit);
 
-  layout::DefaultBox* view_box =
-      new layout::DefaultBox(100_per, 100_per, layout::Align::TopLeft);
-  view_box->setPadding(0_px, width, 0_px, width);
+  layout::DefaultBox view_box(100_per, 100_per, layout::Align::TopLeft);
+  view_box.setPadding(0_px, width, 0_px, width);
   m_view->setLayoutBox(view_box);
 
-  layout::DefaultBox* up_box =
-      new layout::DefaultBox(width, width, layout::Align::TopRight);
+  layout::DefaultBox up_box(width, width, layout::Align::TopRight);
   Button* up = new Button(*this, button_texture, up_box);
 
-  layout::DefaultBox* down_box =
-      new layout::DefaultBox(width, width, layout::Align::BottomRight);
+  layout::DefaultBox down_box(width, width, layout::Align::BottomRight);
   Button* down = new Button(*this, button_texture, down_box);
 
-  layout::DefaultBox* left_box =
-      new layout::DefaultBox(width, width, layout::Align::BottomLeft);
+  layout::DefaultBox left_box(width, width, layout::Align::BottomLeft);
   Button* left = new Button(*this, button_texture, left_box);
 
-  layout::DefaultBox* right_box =
-      new layout::DefaultBox(width2, width, layout::Align::BottomRight);
-  right_box->setPadding(0_px, 0_px, 0_px, width);
+  layout::DefaultBox right_box(width2, width, layout::Align::BottomRight);
+  right_box.setPadding(0_px, 0_px, 0_px, width);
   Button* right = new Button(*this, button_texture, right_box);
 
-  layout::DefaultBox* vert_box =
-      new layout::DefaultBox(width, 100_per, layout::Align::TopRight);
-  vert_box->setPadding(width, 0_px);
+  layout::DefaultBox vert_box(width, 100_per, layout::Align::TopRight);
+  vert_box.setPadding(width, 0_px);
   Slider* vertical = new Slider(*this, vert_box, math::Vec(1, 0.1));
 
-  layout::DefaultBox* horiz_box =
-      new layout::DefaultBox(100_per, width, layout::Align::BottomLeft);
-  horiz_box->setPadding(0_px, 0_px, width, width2);
+  layout::DefaultBox horiz_box(100_per, width, layout::Align::BottomLeft);
+  horiz_box.setPadding(0_px, 0_px, width, width2);
   Slider* horizontal = new Slider(*this, horiz_box, math::Vec(0.1, 1));
 
   m_buttonUp    = up->getId();
@@ -78,7 +71,7 @@ void Scrollbar::updateViewPosition()
   if (m_offset.y > 1)
     m_offset.y = 1;
 
-  m_view->setViewPosition(math::Vec(m_offset.x - .5, m_offset.y - .5));
+  m_view->setViewPosition(math::Vec(m_offset.x, m_offset.y));
 }
 
 void Scrollbar::onClick(size_t button_id)

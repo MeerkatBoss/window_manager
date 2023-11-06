@@ -14,6 +14,7 @@
 
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/Window.hpp>
 
 #include "Event/Event.h"
 #include "Math/TransformStack.h"
@@ -24,7 +25,11 @@ namespace event
 class EventEmitter
 {
 public:
-  EventEmitter(math::TransformStack& stack) : m_stack(stack) {}
+  EventEmitter(const sf::Window& window, math::TransformStack& stack) :
+    m_window(window),
+    m_stack(stack)
+  {
+  }
 
   EventEmitter(const EventEmitter&) = delete;
   EventEmitter& operator=(const EventEmitter&) = delete;
@@ -39,6 +44,7 @@ public:
   }
 
 private:
+  const sf::Window&     m_window;
   math::TransformStack& m_stack;
   sf::Clock             m_clock;
 };

@@ -9,13 +9,18 @@
 #include "GUI/Layout/LayoutBox.h"
 #include "GUI/Widget.h"
 #include "Math/Transform.h"
+#include "Math/TransformStack.h"
 #include "Math/Vec.h"
 
 namespace gui
 {
 
-bool Button::onMousePressed(event::MouseKey mouse_button)
+bool Button::onMousePressed(const math::Vec& position,
+                            event::MouseKey mouse_button,
+                            math::TransformStack& transform_stack)
 {
+  onMouseMoved(position, transform_stack);
+
   if (mouse_button != event::MouseKey::Left || !m_hovered)
     return false;
 
@@ -25,8 +30,12 @@ bool Button::onMousePressed(event::MouseKey mouse_button)
   return true;
 }
 
-bool Button::onMouseReleased(event::MouseKey mouse_button)
+bool Button::onMouseReleased(const math::Vec& position,
+                            event::MouseKey mouse_button,
+                            math::TransformStack& transform_stack)
 {
+  onMouseMoved(position, transform_stack);
+
   if (mouse_button != event::MouseKey::Left || !m_pressed)
     return false;
 
@@ -42,7 +51,7 @@ bool Button::onMouseMoved(const math::Vec&      position,
   return m_hovered = containsPoint(position, transform_stack);
 }
 
-bool Button::onUpdate(double delta_time)
+bool Button::onTick(double delta_time)
 {
   if (m_pressed)
   {
@@ -55,21 +64,19 @@ bool Button::onUpdate(double delta_time)
 void Button::draw(sf::RenderTarget&     draw_target,
                   math::TransformStack& transform_stack)
 {
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Vec tex_size(m_texture.getSize().x, m_texture.getSize().y);
   const auto [tex_tl, tex_tr, tex_bl, tex_br] = layout::getRect(tex_size);
-
-  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
 
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] = sf::Vertex(real_transform.transformPoint(tl - origin), tex_tl);
-  array[1] = sf::Vertex(real_transform.transformPoint(tr - origin), tex_tr);
-  array[2] = sf::Vertex(real_transform.transformPoint(bl - origin), tex_bl);
-  array[3] = sf::Vertex(real_transform.transformPoint(br - origin), tex_br);
+  array[0] = sf::Vertex(real_transform.transformPoint(tl), tex_tl);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr), tex_tr);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl), tex_bl);
+  array[3] = sf::Vertex(real_transform.transformPoint(br), tex_br);
   draw_target.draw(array, &m_texture);
 
   transform_stack.exitCoordSystem();
