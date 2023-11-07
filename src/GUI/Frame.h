@@ -24,13 +24,13 @@
 namespace gui
 {
 
-class Frame : public WidgetContainer, private ButtonController
+class Frame : public Widget, private ButtonController
 {
-  using Base = WidgetContainer;
-
 public:
   Frame(const layout::Length& width, Widget* widget,
         const sf::Texture& button_texture);
+
+  virtual bool onEvent(const event::Event& event) override;
 
   virtual bool onMousePressed(const math::Vec&      position,
                               event::MouseKey       mouse_button,
@@ -43,6 +43,8 @@ public:
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;
 
+  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override;
+
   virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;
 
@@ -50,9 +52,11 @@ public:
   virtual void onRelease(size_t) override { m_resizing = false; }
 
 private:
-  bool      m_moving;
-  bool      m_resizing;
-  math::Vec m_lastPos;
+  WidgetContainer m_container;
+  bool            m_moving;
+  bool            m_resizing;
+  math::Vec       m_lastPos;
+
 };
 
 } // namespace gui

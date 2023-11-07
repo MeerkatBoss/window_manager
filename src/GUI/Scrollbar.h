@@ -30,15 +30,20 @@
 namespace gui
 {
 
-class Scrollbar : public WidgetContainer,
+class Scrollbar : public Widget,
                   private ButtonController,
                   private SliderController
 {
-  using Base = WidgetContainer;
-
 public:
   Scrollbar(layout::Length width, Widget* widget,
             const sf::Texture& button_texture);
+
+  virtual bool onEvent(const event::Event& event) override;
+
+  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override;
+
+  virtual void draw(sf::RenderTarget&     draw_target,
+                    math::TransformStack& transform_stack) override;
 
   virtual void onClick(size_t button_id) override;
 
@@ -51,6 +56,7 @@ public:
 private:
   void updateViewPosition();
 
+  WidgetContainer m_container;
   math::Vec   m_localWidth;
   WidgetView* m_view;
   size_t m_buttonUp, m_buttonDown, m_buttonLeft, m_buttonRight, m_scrollVert,

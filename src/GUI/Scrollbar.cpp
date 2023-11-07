@@ -4,13 +4,16 @@
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include "GUI/Layout/DefaultBox.h"
+#include "GUI/Layout/Units.h"
 
 namespace gui
 {
 
 Scrollbar::Scrollbar(layout::Length width, Widget* widget,
                      const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()),
+    Widget(widget->getLayoutBox()),
+    m_container(layout::DefaultBox(100_per, 100_per, layout::Align::Center)),
     m_view(new WidgetView(widget, 2)),
     m_offset(.5, .5)
 {
@@ -49,13 +52,13 @@ Scrollbar::Scrollbar(layout::Length width, Widget* widget,
   m_scrollVert  = vertical->getId();
   m_scrollHoriz = horizontal->getId();
 
-  addWidget(m_view);
-  addWidget(vertical);
-  addWidget(horizontal);
-  addWidget(up);
-  addWidget(down);
-  addWidget(left);
-  addWidget(right);
+  m_container.addWidget(m_view);
+  m_container.addWidget(vertical);
+  m_container.addWidget(horizontal);
+  m_container.addWidget(up);
+  m_container.addWidget(down);
+  m_container.addWidget(left);
+  m_container.addWidget(right);
 
   updateViewPosition();
 }
@@ -136,6 +139,37 @@ math::Vec Scrollbar::getValue(size_t slider_id)
     return math::Vec(0, m_offset.y);
 
   return math::Vec();
+}
+
+void Scrollbar::onLayoutUpdate(const layout::LayoutBox& parent_box)
+{
+  getLayoutBox().updateParent(parent_box);
+  m_container.onLayoutUpdate(getLayoutBox());
+}
+
+bool Scrollbar::onEvent(const event::Event& event)
+{
+  if (event.isPositionalEvent())
+  {
+    event.asPositionalEvent()->getTransformStack()
+      .enterCoordSystem(getLocalTransform());
+  }
+  bool handled = m_container.onEvent(event);
+  if (event.isPositionalEvent())
+  {
+    event.asPositionalEvent()->getTransformStack()
+      .exitCoordSystem();
+  }
+
+  return handled || Widget::onEvent(event);
+}
+
+void Scrollbar::draw(sf::RenderTarget&     draw_target,
+                 math::TransformStack& transform_stack)
+{
+  transform_stack.enterCoordSystem(getLocalTransform());
+  m_container.draw(draw_target, transform_stack);
+  transform_stack.exitCoordSystem();
 }
 
 } // namespace gui
