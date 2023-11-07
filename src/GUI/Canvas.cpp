@@ -176,6 +176,39 @@ bool Canvas::onKeyboardPressed(event::KeyboardKey key)
     return true;
   }
 
+  if (m_control && key == KeyboardKey::R)
+  {
+    filter::Filter* filter =
+      m_filters.getFilter(size_t(filter::FilterId::Red));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Red));
+    return true;
+  }
+
+  if (m_control && key == KeyboardKey::G)
+  {
+    filter::Filter* filter =
+      m_filters.getFilter(size_t(filter::FilterId::Green));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Green));
+    return true;
+  }
+
+  if (m_control && key == KeyboardKey::B)
+  {
+    filter::Filter* filter =
+      m_filters.getFilter(size_t(filter::FilterId::Blue));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Blue));
+    return true;
+  }
+
   return false;
 }
 

@@ -14,8 +14,11 @@
 
 #include <cassert>
 
+#include "Filter/BlueFilter.h"
 #include "Filter/BrightnessFilter.h"
 #include "Filter/Filter.h"
+#include "Filter/GreenFilter.h"
+#include "Filter/RedFilter.h"
 #include "Util/DynArray.h"
 
 namespace filter
@@ -24,13 +27,20 @@ namespace filter
 enum class FilterId
 {
   Brightness,
+  Red, Green, Blue,
   FilterCount
 };
 
 class FilterPalette
 {
 public:
-  FilterPalette() { m_filters.pushBack(new BrightnessFilter()); }
+  FilterPalette()
+  {
+    m_filters.pushBack(new BrightnessFilter());
+    m_filters.pushBack(new RedFilter());
+    m_filters.pushBack(new GreenFilter());
+    m_filters.pushBack(new BlueFilter());
+  }
 
   ~FilterPalette()
   {

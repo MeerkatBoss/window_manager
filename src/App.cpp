@@ -68,7 +68,6 @@ void App::setupUI()
   using math::Transform;
   using math::Vec;
 
-  /*
   tool::ToolPalette*   palette = new tool::ToolPalette();
   gui::FocusContainer* root =
       new gui::FocusContainer(gui::layout::DefaultBox(100_per, 100_per));
@@ -88,8 +87,8 @@ void App::setupUI()
   gui::ToolWidget* menu = new gui::ToolWidget(root, palette);
 
   m_widgetTree = menu;
-  */
 
+  /*
   using namespace gui;
   using namespace gui::layout;
 
@@ -100,6 +99,7 @@ void App::setupUI()
   dropdown->addButton(g_debugController, "Option 4");
 
   m_widgetTree = dropdown;
+  */
 }
 
 App::~App()
