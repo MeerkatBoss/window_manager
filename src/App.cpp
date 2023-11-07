@@ -10,6 +10,7 @@
 #include "Event/EventEmitter.h"
 #include "GUI/Button.h"
 #include "GUI/Canvas.h"
+#include "GUI/Dropdown.h"
 #include "GUI/FocusContainer.h"
 #include "GUI/Frame.h"
 #include "GUI/Layout/DefaultBox.h"
@@ -67,6 +68,7 @@ void App::setupUI()
   using math::Transform;
   using math::Vec;
 
+  /*
   tool::ToolPalette*   palette = new tool::ToolPalette();
   gui::FocusContainer* root =
       new gui::FocusContainer(gui::layout::DefaultBox(100_per, 100_per));
@@ -86,6 +88,18 @@ void App::setupUI()
   gui::ToolWidget* menu = new gui::ToolWidget(root, palette);
 
   m_widgetTree = menu;
+  */
+
+  using namespace gui;
+  using namespace gui::layout;
+
+  Dropdown* dropdown = new Dropdown("Menu", DefaultBox(50_per, 5_cm));
+  dropdown->addButton(g_debugController, "Option 1");
+  dropdown->addButton(g_debugController, "Option 2");
+  dropdown->addButton(g_debugController, "Option 3");
+  dropdown->addButton(g_debugController, "Option 4");
+
+  m_widgetTree = dropdown;
 }
 
 App::~App()
