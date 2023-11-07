@@ -12,22 +12,25 @@
 #ifndef __GUI_FRAME_H
 #define __GUI_FRAME_H
 
-#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Text.hpp>
 
 #include "Event/Event.h"
 #include "GUI/Button.h"
 #include "GUI/Layout/DefaultBox.h"
+#include "GUI/Layout/LayoutBox.h"
 #include "GUI/Widget.h"
 #include "GUI/WidgetContainer.h"
+#include "GUI/Layout/Units.h"
 #include "Math/Transform.h"
 #include "Math/Vec.h"
+
 namespace gui
 {
 
 class Frame : public Widget, private ButtonController
 {
 public:
-  Frame(const layout::Length& width, Widget* widget);
+  Frame(const layout::Length& width, Widget* widget, const char* title);
 
   virtual bool onEvent(const event::Event& event) override;
 
@@ -51,7 +54,13 @@ public:
   virtual void onRelease(size_t) override { m_resizing = false; }
 
 private:
+  void updateTextLayoutBox(void);
+
   WidgetContainer m_container;
+
+  sf::Text           m_text;
+  layout::DefaultBox m_textLayoutBox;
+
   bool            m_moving;
   bool            m_resizing;
   math::Vec       m_lastPos;

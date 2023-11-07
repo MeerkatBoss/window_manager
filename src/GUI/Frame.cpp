@@ -14,13 +14,17 @@
 namespace gui
 {
 
-Frame::Frame(const layout::Length& width, Widget* widget) :
+Frame::Frame(const layout::Length& width, Widget* widget, const char* title) :
     Widget(widget->getLayoutBox()),
     m_container(layout::DefaultBox(100_per, 100_per, layout::Align::Center)),
+    m_text(title, assets::AssetManager::getDefaultFont()),
+    m_textLayoutBox(0_px, width, layout::Align::TopCenter),
     m_moving(false),
     m_resizing(false),
     m_lastPos()
 {
+  m_text.setFillColor(sf::Color::White);
+
   layout::DefaultBox main_box(100_per, 100_per, layout::Align::Center);
   main_box.setPadding(width);
   widget->setLayoutBox(main_box);
@@ -32,29 +36,39 @@ Frame::Frame(const layout::Length& width, Widget* widget) :
   m_container.addWidget(resize);
 }
 
+void Frame::updateTextLayoutBox(void)
+{
+  m_textLayoutBox.updateParent(getLayoutBox());
+  const math::Vec text_size = m_textLayoutBox.getSize();
+  m_text.setCharacterSize(text_size.y * .7);
+
+  const double text_width = m_text.getGlobalBounds().width;
+  m_text.setOrigin(text_width / 2, 0);
+  m_text.setPosition(m_textLayoutBox.getPosition());
+}
+
 void Frame::onLayoutUpdate(const layout::LayoutBox& parent_box)
 {
   getLayoutBox().updateParent(parent_box);
   m_container.onLayoutUpdate(getLayoutBox());
+  updateTextLayoutBox();
 }
 
 bool Frame::onEvent(const event::Event& event)
 {
   if (event.isPositionalEvent())
   {
-    event.asPositionalEvent()->getTransformStack()
-      .enterCoordSystem(getLocalTransform());
+    event.asPositionalEvent()->getTransformStack().enterCoordSystem(
+        getLocalTransform());
   }
   bool handled = m_container.onEvent(event);
   if (event.isPositionalEvent())
   {
-    event.asPositionalEvent()->getTransformStack()
-      .exitCoordSystem();
+    event.asPositionalEvent()->getTransformStack().exitCoordSystem();
   }
 
   return handled || Widget::onEvent(event);
 }
-
 
 bool Frame::onMousePressed(const math::Vec&      position,
                            event::MouseKey       mouse_button,
@@ -110,6 +124,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
     if (success)
     {
       m_container.onLayoutUpdate(getLayoutBox());
+      updateTextLayoutBox();
     }
     return false;
   }
@@ -131,6 +146,12 @@ void Frame::draw(sf::RenderTarget&     draw_target,
   array[2] = sf::Vertex(real_transform.transformPoint(bl), sf::Color::Blue);
   array[3] = sf::Vertex(real_transform.transformPoint(br), sf::Color::Blue);
   draw_target.draw(array);
+
+  sf::Text drawn_text = m_text;
+  drawn_text.scale(real_transform.getScale());
+  drawn_text.move(real_transform.getOffset());
+  draw_target.draw(drawn_text);
+
   m_container.draw(draw_target, transform_stack);
 
   transform_stack.exitCoordSystem();

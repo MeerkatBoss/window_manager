@@ -72,7 +72,7 @@ void App::setupUI()
       *palette, m_filters, 800, 800, gui::layout::DefaultBox(15_cm, 15_cm));
   gui::Scrollbar* scrollbar = new gui::Scrollbar(1_cm, canvas);
   gui::ToolWidget* menu     = new gui::ToolWidget(scrollbar, palette);
-  gui::Frame*      frame    = new gui::Frame(7_mm, menu);
+  gui::Frame*      frame    = new gui::Frame(7_mm, menu, "Canvas");
 
   m_widgetTree = frame;
 }
