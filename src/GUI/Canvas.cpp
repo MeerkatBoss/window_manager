@@ -25,6 +25,19 @@ math::Transform Canvas::getTextureTransform() const
   return math::Transform(math::Vec(), tex_scale);
 }
 
+bool Canvas::onEvent(const event::Event& event)
+{
+  Widget* tool_widget = m_palette.getActiveTool()->getWidget();
+  if (tool_widget != nullptr)
+  {
+    bool handled = tool_widget->onEvent(event);
+    if (handled)
+      return true;
+  }
+
+  return Widget::onEvent(event);
+}
+
 bool Canvas::onMousePressed(const math::Vec&      position,
                             event::MouseKey       mouse_button,
                             math::TransformStack& transform_stack)

@@ -14,6 +14,7 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 
+#include "Event/Event.h"
 #include "Filter/FilterMask.h"
 #include "GUI/Layout/LayoutBox.h"
 #include "GUI/Widget.h"
@@ -52,6 +53,8 @@ public:
     m_renderTexture.clear(sf::Color::White);
     m_mask.fill(true);
   }
+
+  virtual bool onEvent(const event::Event& event) override;
 
   virtual bool onMousePressed(const math::Vec&      position,
                               event::MouseKey       mouse_button,

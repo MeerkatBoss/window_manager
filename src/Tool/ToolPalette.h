@@ -18,6 +18,7 @@
 #include "Tool/LineTool.h"
 #include "Tool/PolylineTool.h"
 #include "Tool/RectangleTool.h"
+#include "Tool/TextTool.h"
 #include "Tool/Tool.h"
 
 namespace tool
@@ -41,6 +42,7 @@ public:
   void selectEllipseTool() { m_activeTool = m_ellipse; }
   void selectPolylineTool() { m_activeTool = m_polyline; }
   void selectFillTool() { m_activeTool = m_fill; }
+  void selectTextTool() { m_activeTool = m_text; }
 
 private:
   BrushTool*     m_brush;
@@ -49,6 +51,7 @@ private:
   EllipseTool*   m_ellipse;
   PolylineTool*  m_polyline;
   FillTool*      m_fill;
+  TextTool*      m_text;
 
   sf::Color m_fgColor;
   sf::Color m_bgColor;

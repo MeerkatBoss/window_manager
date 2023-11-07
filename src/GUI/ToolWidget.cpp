@@ -43,6 +43,12 @@ bool ToolWidget::onKeyboardPressed(event::KeyboardKey key)
     return true;
   }
 
+  if (key == KeyboardKey::T)
+  {
+    m_palette->selectTextTool();
+    return true;
+  }
+
   return Base::onKeyboardPressed(key);
 }
 
