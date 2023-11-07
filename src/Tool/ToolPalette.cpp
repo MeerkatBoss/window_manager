@@ -32,6 +32,7 @@ ToolPalette::~ToolPalette()
   delete m_ellipse;
   delete m_polyline;
   delete m_fill;
+  delete m_text;
 }
 
 } // namespace tool

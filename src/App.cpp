@@ -6,6 +6,7 @@
 #include <SFML/Window/WindowStyle.hpp>
 #include <cstdio>
 
+#include "Assets/AssetManager.h"
 #include "Event/Event.h"
 #include "Event/EventEmitter.h"
 #include "GUI/Button.h"
@@ -51,7 +52,7 @@ private:
 
 static DebugController g_debugController;
 
-App::App()
+App::App() : m_ended(false)
 {
   using math::Transform;
   using math::Vec;
@@ -61,6 +62,8 @@ App::App()
 
   setupUI();
 }
+
+void App::onClick(size_t) { m_ended = true; }
 
 void App::setupUI()
 {
@@ -83,6 +86,10 @@ void App::setupUI()
 
     root->addWidget(frame);
   }
+
+  root->addWidget(new gui::Button(
+      *this, assets::AssetManager::getButtonTexture(),
+      gui::layout::DefaultBox(1_cm, 1_cm, gui::layout::Align::TopRight), "#"));
 
   gui::ToolWidget* menu = new gui::ToolWidget(root, palette);
 
@@ -162,6 +169,11 @@ void App::runMainLoop()
     m_widgetTree->draw(m_window, stack);
 
     m_window.display();
+
+    if (m_ended)
+    {
+      m_window.close();
+    }
   }
 
   // stack.exitCoordSystem();

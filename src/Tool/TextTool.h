@@ -30,6 +30,11 @@ public:
 
   TextTool(unsigned font_size_px, const ToolPalette& palette);
 
+  virtual ~TextTool() override
+  {
+    delete m_widget;
+  }
+
   virtual void onMainButton(ButtonState state, const math::Vec& pos,
                             gui::Canvas& canvas) override;
 

@@ -16,9 +16,10 @@
 #include <SFML/Graphics/Texture.hpp>
 
 #include "Filter/FilterPalette.h"
+#include "GUI/Button.h"
 #include "GUI/Widget.h"
 
-class App
+class App : private gui::ButtonController
 {
 public:
   App();
@@ -30,6 +31,9 @@ private:
   sf::RenderWindow      m_window;
   gui::Widget*          m_widgetTree;
   filter::FilterPalette m_filters;
+  bool                  m_ended;
+
+  virtual void onClick(size_t button_id) override;
 
   void setupUI();
 
