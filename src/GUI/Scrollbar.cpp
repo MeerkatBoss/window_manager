@@ -3,20 +3,22 @@
 #include <SFML/Graphics/ConvexShape.hpp>
 #include <SFML/Graphics/PrimitiveType.hpp>
 #include <SFML/Graphics/RenderStates.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+#include "Assets/AssetManager.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/Units.h"
 
 namespace gui
 {
 
-Scrollbar::Scrollbar(layout::Length width, Widget* widget,
-                     const sf::Texture& button_texture) :
+Scrollbar::Scrollbar(layout::Length width, Widget* widget) :
     Widget(widget->getLayoutBox()),
     m_container(layout::DefaultBox(100_per, 100_per, layout::Align::Center)),
     m_view(new WidgetView(widget, 2)),
     m_offset(.5, .5)
 {
+  const sf::Texture& button_texture = assets::AssetManager::getButtonTexture();
   const layout::Length width2(2 * width.value, width.unit);
 
   layout::DefaultBox view_box(100_per, 100_per, layout::Align::TopLeft);

@@ -27,8 +27,6 @@ public:
   void run(void);
 
 private:
-  sf::Texture m_buttonTexture;
-
   sf::RenderWindow      m_window;
   gui::Widget*          m_widgetTree;
   filter::FilterPalette m_filters;

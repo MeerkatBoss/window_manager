@@ -57,8 +57,6 @@ App::App()
   m_window.create(sf::VideoMode::getDesktopMode(), "Window Manager",
                   sf::Style::Fullscreen);
 
-  m_buttonTexture.loadFromFile("assets/button_square.png");
-
   setupUI();
 }
 
@@ -72,9 +70,9 @@ void App::setupUI()
 
   gui::Canvas* canvas = new gui::Canvas(
       *palette, m_filters, 800, 800, gui::layout::DefaultBox(15_cm, 15_cm));
-  gui::Scrollbar* scrollbar = new gui::Scrollbar(1_cm, canvas, m_buttonTexture);
+  gui::Scrollbar* scrollbar = new gui::Scrollbar(1_cm, canvas);
   gui::ToolWidget* menu     = new gui::ToolWidget(scrollbar, palette);
-  gui::Frame*      frame    = new gui::Frame(7_mm, menu, m_buttonTexture);
+  gui::Frame*      frame    = new gui::Frame(7_mm, menu);
 
   m_widgetTree = frame;
 }

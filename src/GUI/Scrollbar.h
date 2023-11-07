@@ -35,8 +35,7 @@ class Scrollbar : public Widget,
                   private SliderController
 {
 public:
-  Scrollbar(layout::Length width, Widget* widget,
-            const sf::Texture& button_texture);
+  Scrollbar(layout::Length width, Widget* widget);
 
   virtual bool onEvent(const event::Event& event) override;
 

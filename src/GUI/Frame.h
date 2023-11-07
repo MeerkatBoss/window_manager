@@ -27,8 +27,7 @@ namespace gui
 class Frame : public Widget, private ButtonController
 {
 public:
-  Frame(const layout::Length& width, Widget* widget,
-        const sf::Texture& button_texture);
+  Frame(const layout::Length& width, Widget* widget);
 
   virtual bool onEvent(const event::Event& event) override;
 

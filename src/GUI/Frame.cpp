@@ -1,9 +1,11 @@
 #include "GUI/Frame.h"
 
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <cstdio>
 
+#include "Assets/AssetManager.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/Units.h"
 #include "GUI/WidgetContainer.h"
@@ -12,8 +14,7 @@
 namespace gui
 {
 
-Frame::Frame(const layout::Length& width, Widget* widget,
-             const sf::Texture& button_texture) :
+Frame::Frame(const layout::Length& width, Widget* widget) :
     Widget(widget->getLayoutBox()),
     m_container(layout::DefaultBox(100_per, 100_per, layout::Align::Center)),
     m_moving(false),
@@ -25,6 +26,7 @@ Frame::Frame(const layout::Length& width, Widget* widget,
   widget->setLayoutBox(main_box);
   m_container.addWidget(widget);
 
+  const sf::Texture& button_texture = assets::AssetManager::getButtonTexture();
   layout::DefaultBox button_box(width, width, layout::Align::BottomRight);
   Button*            resize = new Button(*this, button_texture, button_box);
   m_container.addWidget(resize);
