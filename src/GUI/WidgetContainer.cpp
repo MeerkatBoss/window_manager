@@ -1,6 +1,7 @@
 #include "GUI/WidgetContainer.h"
 
 #include <cstdio>
+
 #include "Event/Event.h"
 
 namespace gui
@@ -8,20 +9,30 @@ namespace gui
 
 bool WidgetContainer::onEvent(const event::Event& event)
 {
-  if (m_focused && needEventForward(event))
+  if (event.isPositionalEvent())
   {
-    for (size_t i = 0; i < m_widgets.getSize(); ++i)
-    {
-      if (m_widgets[i]->onEvent(event))
-      {
-        return true;
-      }
-    }
+    event.asPositionalEvent()->getTransformStack().enterCoordSystem(
+        getLocalTransform());
   }
 
-  return Widget::onEvent(event);
+  bool handled = false;
+  for (size_t i = 0; i < m_widgets.getSize(); ++i)
+  {
+    handled = m_widgets[i]->onEvent(event);
+    if (handled)
+    {
+      break;
+    }
+  }
+  if (event.isPositionalEvent())
+  {
+    event.asPositionalEvent()->getTransformStack().exitCoordSystem();
+  }
+
+  return handled || Widget::onEvent(event);
 }
 
+/*
 bool WidgetContainer::onMouseMoved(const math::Vec&      position,
                                    math::TransformStack& transform_stack)
 {
@@ -92,6 +103,7 @@ bool WidgetContainer::onTick(double delta_time)
 
   return Widget::onTick(delta_time) || handled;
 }
+*/
 
 void WidgetContainer::draw(sf::RenderTarget&     draw_target,
                            math::TransformStack& transform_stack)
@@ -119,16 +131,18 @@ void WidgetContainer::onLayoutUpdate(const layout::LayoutBox& parent_box)
   }
 }
 
+/*
 bool WidgetContainer::needEventForward(const event::Event& event) const
 {
   size_t type = event.getEventType();
-  if (type == event::EventType::MouseMove || type == event::EventType::Update
-      || type == event::EventType::MouseButton)
+  if (type == event::EventType::MouseMove || type == event::EventType::Update ||
+      type == event::EventType::MouseButton)
   {
     return false;
   }
 
   return true;
 }
+*/
 
 } // namespace gui

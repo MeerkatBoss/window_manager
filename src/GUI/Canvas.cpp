@@ -74,13 +74,13 @@ bool Canvas::onMouseReleased(const math::Vec&      position,
   {
     m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
                                             local_position, *this);
-    return true;
+    return false;
   }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Released,
                                                  local_position, *this);
-    return true;
+    return false;
   }
 
   return false;
@@ -99,7 +99,7 @@ bool Canvas::onMouseMoved(const math::Vec&      position,
 
   m_palette.getActiveTool()->onMove(local_position, *this);
 
-  return true;
+  return false;
 }
 
 bool Canvas::onKeyboardPressed(event::KeyboardKey key)

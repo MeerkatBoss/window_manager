@@ -39,6 +39,7 @@ public:
 
   virtual bool onEvent(const event::Event& event) override;
 
+  /*
   virtual bool onMousePressed(const math::Vec&      position,
                               event::MouseKey       mouse_button,
                               math::TransformStack& transform_stack) override;
@@ -51,6 +52,7 @@ public:
                             math::TransformStack& transform_stack) override;
 
   virtual bool onTick(double delta_time) override;
+  */
 
   virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;
@@ -71,9 +73,15 @@ protected:
 
   void addWidget(Widget* widget) { m_widgets.pushBack(widget); }
 
-  bool needEventForward(const event::Event& event) const;
+  // bool isExclusive(const event::Event& event) const;
 
 private:
+  /*
+  bool forwardMouseMoved(const event::MouseMoveEvent& event);
+
+  bool forwardMouseButton(const event::MouseButtonEvent& event);
+  */
+
   util::DynArray<Widget*> m_widgets;
   bool                    m_focused;
 };

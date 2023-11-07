@@ -14,6 +14,7 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 
+#include "Event/Event.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/Units.h"
 #include "GUI/Widget.h"
@@ -25,10 +26,15 @@ namespace gui
 {
 
 // TODO: Replace inheritance with composition
-class WidgetView : public WidgetContainer
+class WidgetView : public Widget
 {
 public:
   explicit WidgetView(Widget* widget, double zoom = 1);
+
+  virtual ~WidgetView()
+  {
+    delete m_widget;
+  }
 
   void setViewPosition(const math::Point& position);
 
@@ -45,16 +51,7 @@ public:
 
   void zoomView(double zoom) { m_widgetTransform.scale(math::Vec(zoom, zoom)); }
 
-  virtual bool onMousePressed(const math::Vec&      position,
-                              event::MouseKey       mouse_button,
-                              math::TransformStack& transform_stack) override;
-
-  virtual bool onMouseReleased(const math::Vec&      position,
-                               event::MouseKey       mouse_button,
-                               math::TransformStack& transform_stack) override;
-
-  virtual bool onMouseMoved(const math::Vec&      position,
-                            math::TransformStack& transform_stack) override;
+  virtual bool onEvent(const event::Event& event) override;
 
   virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;
@@ -62,14 +59,17 @@ public:
   virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override
   {
     const math::Point offset = getViewPosition();
-    WidgetContainer::onLayoutUpdate(parent_box);
+    getLayoutBox().updateParent(parent_box);
+    m_widget->onLayoutUpdate(parent_box);
     setViewPosition(offset);
   }
 
 private:
-  Widget*       getDecorated() { return getWidgets()[0]; }
-  const Widget* getDecorated() const { return getWidgets()[0]; }
+  bool forwardMouseMoved(const event::MouseMoveEvent& event);
 
+  bool forwardMouseButton(const event::MouseButtonEvent& event);
+
+  Widget*           m_widget;
   math::Transform   m_widgetTransform;
   sf::RenderTexture m_viewTexture;
 };
