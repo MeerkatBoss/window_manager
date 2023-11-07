@@ -45,6 +45,7 @@ public:
       m_filters(filters),
       m_mask(width_px, height_px),
       m_control(false),
+      m_drawing(false),
       m_lastPos()
   {
     m_renderTexture.create(width_px, height_px);
@@ -80,6 +81,7 @@ private:
   filter::FilterMask     m_mask;
 
   bool        m_control;
+  bool        m_drawing;
   math::Point m_lastPos;
 };
 

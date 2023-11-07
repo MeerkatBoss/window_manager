@@ -15,8 +15,8 @@
 namespace gui
 {
 
-bool Button::onMousePressed(const math::Vec& position,
-                            event::MouseKey mouse_button,
+bool Button::onMousePressed(const math::Vec&      position,
+                            event::MouseKey       mouse_button,
                             math::TransformStack& transform_stack)
 {
   onMouseMoved(position, transform_stack);
@@ -30,9 +30,9 @@ bool Button::onMousePressed(const math::Vec& position,
   return true;
 }
 
-bool Button::onMouseReleased(const math::Vec& position,
-                            event::MouseKey mouse_button,
-                            math::TransformStack& transform_stack)
+bool Button::onMouseReleased(const math::Vec&      position,
+                             event::MouseKey       mouse_button,
+                             math::TransformStack& transform_stack)
 {
   onMouseMoved(position, transform_stack);
 
@@ -42,13 +42,15 @@ bool Button::onMouseReleased(const math::Vec& position,
   m_controller.onRelease(getId());
   m_pressed = false;
 
-  return true;
+  return false;
 }
 
 bool Button::onMouseMoved(const math::Vec&      position,
                           math::TransformStack& transform_stack)
 {
-  return m_hovered = containsPoint(position, transform_stack);
+  m_hovered = containsPoint(position, transform_stack);
+
+  return false;
 }
 
 bool Button::onTick(double delta_time)
@@ -56,7 +58,6 @@ bool Button::onTick(double delta_time)
   if (m_pressed)
   {
     m_controller.onHold(getId(), delta_time);
-    return true;
   }
   return false;
 }

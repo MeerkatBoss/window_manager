@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include "Assets/AssetManager.h"
+#include "Event/Event.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/Units.h"
 #include "GUI/WidgetContainer.h"
@@ -112,7 +113,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
   {
     getLayoutBox().setPosition(parent_position - m_lastPos);
 
-    return false;
+    return true;
   }
 
   m_lastPos = local_position;
@@ -126,7 +127,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
       m_container.onLayoutUpdate(getLayoutBox());
       updateTextLayoutBox();
     }
-    return false;
+    return true;
   }
 
   return false;

@@ -23,8 +23,8 @@ static double clamp(double left, double right, double x)
 
 static bool doubleEq(double a, double b) { return fabs(a - b) < 1e-6; }
 
-math::Vec Slider::getSliderVal(const math::Vec& position,
-                       math::TransformStack& transform_stack) const
+math::Vec Slider::getSliderVal(const math::Vec&      position,
+                               math::TransformStack& transform_stack) const
 {
   transform_stack.enterCoordSystem(getLocalTransform());
 
@@ -68,14 +68,12 @@ bool Slider::onMousePressed(const math::Vec&      position,
   return false;
 }
 
-bool Slider::onMouseReleased(const math::Vec&,
-                            event::MouseKey       mouse_button,
-                            math::TransformStack&)
+bool Slider::onMouseReleased(const math::Vec&, event::MouseKey mouse_button,
+                             math::TransformStack&)
 {
   if (mouse_button == event::MouseKey::Left && m_captured)
   {
     m_captured = false;
-    return true;
   }
 
   return false;
@@ -90,7 +88,7 @@ bool Slider::onMouseMoved(const math::Vec&      position,
     return true;
   }
 
-  return containsPoint(position, transform_stack);
+  return false;
 }
 
 void Slider::draw(sf::RenderTarget&     draw_target,

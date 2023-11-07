@@ -31,10 +31,7 @@ class WidgetView : public Widget
 public:
   explicit WidgetView(Widget* widget, double zoom = 1);
 
-  virtual ~WidgetView()
-  {
-    delete m_widget;
-  }
+  virtual ~WidgetView() { delete m_widget; }
 
   void setViewPosition(const math::Point& position);
 

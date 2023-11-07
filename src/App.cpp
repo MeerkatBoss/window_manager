@@ -10,6 +10,7 @@
 #include "Event/EventEmitter.h"
 #include "GUI/Button.h"
 #include "GUI/Canvas.h"
+#include "GUI/FocusContainer.h"
 #include "GUI/Frame.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/LayoutBox.h"
@@ -66,15 +67,25 @@ void App::setupUI()
   using math::Transform;
   using math::Vec;
 
-  tool::ToolPalette* palette = new tool::ToolPalette();
+  tool::ToolPalette*   palette = new tool::ToolPalette();
+  gui::FocusContainer* root =
+      new gui::FocusContainer(gui::layout::DefaultBox(100_per, 100_per));
 
-  gui::Canvas* canvas = new gui::Canvas(
-      *palette, m_filters, 800, 800, gui::layout::DefaultBox(15_cm, 15_cm));
-  gui::Scrollbar* scrollbar = new gui::Scrollbar(1_cm, canvas);
-  gui::ToolWidget* menu     = new gui::ToolWidget(scrollbar, palette);
-  gui::Frame*      frame    = new gui::Frame(7_mm, menu, "Canvas");
+  for (size_t i = 0; i < 3; ++i)
+  {
+    gui::layout::DefaultBox box(15_cm, 15_cm);
+    box.setPosition(Vec(200 * i + 100, 200 * i + 100));
 
-  m_widgetTree = frame;
+    gui::Canvas* canvas = new gui::Canvas(*palette, m_filters, 800, 800, box);
+    gui::Scrollbar* scrollbar = new gui::Scrollbar(1_cm, canvas);
+    gui::Frame*     frame     = new gui::Frame(7_mm, scrollbar, "Canvas");
+
+    root->addWidget(frame);
+  }
+
+  gui::ToolWidget* menu = new gui::ToolWidget(root, palette);
+
+  m_widgetTree = menu;
 }
 
 App::~App()
@@ -102,7 +113,7 @@ void App::runMainLoop()
       gui::layout::Length(m_window.getSize().x, gui::layout::Unit::Pixel),
       gui::layout::Length(m_window.getSize().y, gui::layout::Unit::Pixel));
 
-  stack.enterCoordSystem(math::Transform(win_offset));
+  // stack.enterCoordSystem(math::Transform(win_offset));
 
   m_widgetTree->onLayoutUpdate(root_layout);
   while (m_window.isOpen())
@@ -139,5 +150,5 @@ void App::runMainLoop()
     m_window.display();
   }
 
-  stack.exitCoordSystem();
+  // stack.exitCoordSystem();
 }

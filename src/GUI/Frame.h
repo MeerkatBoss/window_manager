@@ -18,9 +18,9 @@
 #include "GUI/Button.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/LayoutBox.h"
+#include "GUI/Layout/Units.h"
 #include "GUI/Widget.h"
 #include "GUI/WidgetContainer.h"
-#include "GUI/Layout/Units.h"
 #include "Math/Transform.h"
 #include "Math/Vec.h"
 
@@ -61,10 +61,9 @@ private:
   sf::Text           m_text;
   layout::DefaultBox m_textLayoutBox;
 
-  bool            m_moving;
-  bool            m_resizing;
-  math::Vec       m_lastPos;
-
+  bool      m_moving;
+  bool      m_resizing;
+  math::Vec m_lastPos;
 };
 
 } // namespace gui

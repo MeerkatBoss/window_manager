@@ -5,6 +5,7 @@
 #include <SFML/Graphics/RenderStates.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
+
 #include "Assets/AssetManager.h"
 #include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/Units.h"
@@ -26,13 +27,13 @@ Scrollbar::Scrollbar(layout::Length width, Widget* widget) :
   m_view->setLayoutBox(view_box);
 
   layout::DefaultBox up_box(width, width, layout::Align::TopRight);
-  Button* up = new Button(*this, button_texture, up_box);
+  Button*            up = new Button(*this, button_texture, up_box);
 
   layout::DefaultBox down_box(width, width, layout::Align::BottomRight);
-  Button* down = new Button(*this, button_texture, down_box);
+  Button*            down = new Button(*this, button_texture, down_box);
 
   layout::DefaultBox left_box(width, width, layout::Align::BottomLeft);
-  Button* left = new Button(*this, button_texture, left_box);
+  Button*            left = new Button(*this, button_texture, left_box);
 
   layout::DefaultBox right_box(width2, width, layout::Align::BottomRight);
   right_box.setPadding(0_px, 0_px, 0_px, width);
@@ -153,21 +154,20 @@ bool Scrollbar::onEvent(const event::Event& event)
 {
   if (event.isPositionalEvent())
   {
-    event.asPositionalEvent()->getTransformStack()
-      .enterCoordSystem(getLocalTransform());
+    event.asPositionalEvent()->getTransformStack().enterCoordSystem(
+        getLocalTransform());
   }
   bool handled = m_container.onEvent(event);
   if (event.isPositionalEvent())
   {
-    event.asPositionalEvent()->getTransformStack()
-      .exitCoordSystem();
+    event.asPositionalEvent()->getTransformStack().exitCoordSystem();
   }
 
   return handled || Widget::onEvent(event);
 }
 
 void Scrollbar::draw(sf::RenderTarget&     draw_target,
-                 math::TransformStack& transform_stack)
+                     math::TransformStack& transform_stack)
 {
   transform_stack.enterCoordSystem(getLocalTransform());
   m_container.draw(draw_target, transform_stack);

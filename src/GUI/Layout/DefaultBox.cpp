@@ -1,4 +1,5 @@
 #include "GUI/Layout/DefaultBox.h"
+
 #include <cstdio>
 
 #include "GUI/Layout/Units.h"
@@ -136,7 +137,6 @@ math::Vec DefaultBox::getSize() const
                            getPixels(m_paddingRight, m_parentSize.x);
   const double pad_vert = getPixels(m_paddingTop, m_parentSize.y) +
                           getPixels(m_paddingBottom, m_parentSize.y);
-
 
   return math::Vec(clampToZero(full_width - pad_horiz),
                    clampToZero(full_height - pad_vert));

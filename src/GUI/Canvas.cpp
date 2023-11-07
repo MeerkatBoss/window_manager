@@ -46,12 +46,14 @@ bool Canvas::onMousePressed(const math::Vec&      position,
   {
     m_palette.getActiveTool()->onMainButton(tool::ButtonState::Pressed,
                                             local_position, *this);
+    m_drawing = true;
     return true;
   }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Pressed,
                                                  local_position, *this);
+    m_drawing = true;
     return true;
   }
 
@@ -74,12 +76,14 @@ bool Canvas::onMouseReleased(const math::Vec&      position,
   {
     m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
                                             local_position, *this);
+    m_drawing = false;
     return false;
   }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Released,
                                                  local_position, *this);
+    m_drawing = false;
     return false;
   }
 
@@ -99,7 +103,7 @@ bool Canvas::onMouseMoved(const math::Vec&      position,
 
   m_palette.getActiveTool()->onMove(local_position, *this);
 
-  return false;
+  return m_drawing;
 }
 
 bool Canvas::onKeyboardPressed(event::KeyboardKey key)
