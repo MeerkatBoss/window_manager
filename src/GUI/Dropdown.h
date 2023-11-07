@@ -38,7 +38,7 @@ public:
   {
   }
 
-  void addButton(ButtonController& controller, const char* name);
+  size_t addButton(ButtonController& controller, const char* name);
 
   virtual bool onEvent(const event::Event& event) override;
 

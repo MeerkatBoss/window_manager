@@ -50,7 +50,11 @@ public:
     return const_cast<WidgetContainer*>(this)->getWidgets();
   }
 
-  void addWidget(Widget* widget) { m_widgets.pushBack(widget); }
+  void addWidget(Widget* widget)
+  {
+    m_widgets.pushBack(widget);
+    widget->onLayoutUpdate(getLayoutBox());
+  }
 
 private:
   util::DynArray<Widget*> m_widgets;

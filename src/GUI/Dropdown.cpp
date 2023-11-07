@@ -8,7 +8,7 @@
 namespace gui
 {
 
-void Dropdown::addButton(ButtonController& controller, const char* name)
+size_t Dropdown::addButton(ButtonController& controller, const char* name)
 {
   using namespace layout;
 
@@ -17,9 +17,10 @@ void Dropdown::addButton(ButtonController& controller, const char* name)
   m_dropDown.setLayoutBox(DefaultBox(
       100_per, Length(100 * (button_count + 1), Unit::Percent), Align::Free));
 
-  m_dropDown.addWidget(new Button(controller,
-                                  assets::AssetManager::getButtonTexture(),
-                                  layout::DefaultBox(0_px, 0_px), name));
+  Button* added =
+      new Button(controller, assets::AssetManager::getButtonTexture(),
+                 layout::DefaultBox(0_px, 0_px), name);
+  m_dropDown.addWidget(added);
 
   for (size_t i = 0; i < button_count; ++i)
   {
@@ -33,6 +34,8 @@ void Dropdown::addButton(ButtonController& controller, const char* name)
   }
 
   m_dropDown.onLayoutUpdate(getLayoutBox());
+
+  return added->getId();
 }
 
 bool Dropdown::onEvent(const event::Event& event)

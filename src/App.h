@@ -17,6 +17,8 @@
 
 #include "Filter/FilterPalette.h"
 #include "GUI/Button.h"
+#include "GUI/Canvas.h"
+#include "GUI/FocusContainer.h"
 #include "GUI/Widget.h"
 
 class App : private gui::ButtonController
@@ -30,8 +32,12 @@ public:
 private:
   sf::RenderWindow      m_window;
   gui::Widget*          m_widgetTree;
+  gui::FocusContainer*  m_rootContainer;
   filter::FilterPalette m_filters;
+  tool::ToolPalette*    m_tools;
   bool                  m_ended;
+
+  size_t m_closeButtonId, m_newCanvasButtonId, m_openButtonId;
 
   virtual void onClick(size_t button_id) override;
 
