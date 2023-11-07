@@ -11,9 +11,21 @@
 #include "Math/Transform.h"
 #include "Math/TransformStack.h"
 #include "Math/Vec.h"
-
 namespace gui
 {
+
+void Button::onLayoutUpdate(const layout::LayoutBox& parent_box)
+{
+  Widget::onLayoutUpdate(parent_box);
+
+  m_textLayoutBox.updateParent(getLayoutBox());
+  const math::Vec text_size = m_textLayoutBox.getSize();
+  m_text.setCharacterSize(text_size.y * .8);
+
+  const double text_width = m_text.getGlobalBounds().width;
+  m_text.setOrigin(text_width / 2, 0);
+  m_text.setPosition(m_textLayoutBox.getPosition());
+}
 
 bool Button::onMousePressed(const math::Vec&      position,
                             event::MouseKey       mouse_button,
@@ -79,6 +91,11 @@ void Button::draw(sf::RenderTarget&     draw_target,
   array[2] = sf::Vertex(real_transform.transformPoint(bl), tex_bl);
   array[3] = sf::Vertex(real_transform.transformPoint(br), tex_br);
   draw_target.draw(array, &m_texture);
+
+  sf::Text drawn_text = m_text;
+  drawn_text.setScale(real_transform.getScale());
+  drawn_text.setPosition(real_transform.transformPoint(m_text.getPosition()));
+  draw_target.draw(drawn_text);
 
   transform_stack.exitCoordSystem();
 }

@@ -27,17 +27,17 @@ Scrollbar::Scrollbar(layout::Length width, Widget* widget) :
   m_view->setLayoutBox(view_box);
 
   layout::DefaultBox up_box(width, width, layout::Align::TopRight);
-  Button*            up = new Button(*this, button_texture, up_box);
+  Button*            up = new Button(*this, button_texture, up_box, "^");
 
   layout::DefaultBox down_box(width, width, layout::Align::BottomRight);
-  Button*            down = new Button(*this, button_texture, down_box);
+  Button*            down = new Button(*this, button_texture, down_box, "v");
 
   layout::DefaultBox left_box(width, width, layout::Align::BottomLeft);
-  Button*            left = new Button(*this, button_texture, left_box);
+  Button*            left = new Button(*this, button_texture, left_box, "<");
 
   layout::DefaultBox right_box(width2, width, layout::Align::BottomRight);
   right_box.setPadding(0_px, 0_px, 0_px, width);
-  Button* right = new Button(*this, button_texture, right_box);
+  Button* right = new Button(*this, button_texture, right_box, ">");
 
   layout::DefaultBox vert_box(width, 100_per, layout::Align::TopRight);
   vert_box.setPadding(width, 0_px);

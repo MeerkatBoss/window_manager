@@ -15,6 +15,8 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <cstddef>
 
+#include "Assets/AssetManager.h"
+#include "GUI/Layout/DefaultBox.h"
 #include "GUI/Layout/LayoutBox.h"
 #include "GUI/Widget.h"
 #include "Math/Transform.h"
@@ -41,8 +43,10 @@ class Button : public Widget
 {
 public:
   Button(ButtonController& controller, const sf::Texture& texture,
-         const layout::LayoutBox& layout_box) :
+         const layout::LayoutBox& layout_box, const char* text = "") :
       Widget(layout_box),
+      m_text(text, assets::AssetManager::getDefaultFont()),
+      m_textLayoutBox(0_px, 1_cm, layout::Align::Center),
       m_texture(texture),
       m_textureTransform(
           math::Vec(-0.5, -0.5),
@@ -69,7 +73,12 @@ public:
   virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;
 
+  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override;
+
 private:
+  sf::Text           m_text;
+  layout::DefaultBox m_textLayoutBox;
+
   const sf::Texture& m_texture;
   math::Transform    m_textureTransform;
 

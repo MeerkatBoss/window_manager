@@ -149,8 +149,8 @@ void Frame::draw(sf::RenderTarget&     draw_target,
   draw_target.draw(array);
 
   sf::Text drawn_text = m_text;
-  drawn_text.scale(real_transform.getScale());
-  drawn_text.move(real_transform.getOffset());
+  drawn_text.setScale(real_transform.getScale());
+  drawn_text.setPosition(real_transform.transformPoint(m_text.getPosition()));
   draw_target.draw(drawn_text);
 
   m_container.draw(draw_target, transform_stack);
