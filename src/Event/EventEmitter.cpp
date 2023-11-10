@@ -1,5 +1,6 @@
 #include "Event/EventEmitter.h"
 
+#include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
@@ -42,12 +43,15 @@ Event* EventEmitter::emitEvent(const sf::Event& sf_event)
   {
     const sf::Event::MouseButtonEvent& sf_mouse_event = sf_event.mouseButton;
 
+    sf::Vector2i sf_pos  = sf::Mouse::getPosition(m_window);
+    math::Vec    pos(sf_pos.x, sf_pos.y);
+
     MouseKey key      = getMouseKey(sf_mouse_event.button);
     KeyState keyState = sf_event.type == sf::Event::MouseButtonPressed
                             ? KeyState::Pressed
                             : KeyState::Released;
 
-    return new MouseButtonEvent(keyState, key);
+    return new MouseButtonEvent(keyState, key, pos, m_stack);
   }
 
   if (sf_event.type == sf::Event::MouseMoved)

@@ -1,63 +1,35 @@
 #include "GUI/WidgetContainer.h"
 
+#include <cstdio>
+
+#include "Event/Event.h"
+
 namespace gui
 {
 
 bool WidgetContainer::onEvent(const event::Event& event)
 {
-  if (m_focused && needEventForward(event))
+  if (event.isPositionalEvent())
   {
-    for (size_t i = 0; i < m_widgets.getSize(); ++i)
+    event.asPositionalEvent()->getTransformStack().enterCoordSystem(
+        getLocalTransform());
+  }
+
+  bool handled = false;
+  for (size_t i = 0; i < m_widgets.getSize(); ++i)
+  {
+    handled = m_widgets[i]->onEvent(event);
+    if (handled)
     {
-      if (m_widgets[i]->onEvent(event))
-      {
-        return true;
-      }
+      break;
     }
   }
-
-  return Widget::onEvent(event);
-}
-
-bool WidgetContainer::onMouseMoved(const math::Vec&      position,
-                                   math::TransformStack& transform_stack)
-{
-  m_focused = containsPoint(position, transform_stack);
-
-  transform_stack.enterCoordSystem(getLocalTransform());
-
-  bool handled = false;
-  for (size_t i = 0; i < m_widgets.getSize(); ++i)
+  if (event.isPositionalEvent())
   {
-    handled |= m_widgets[i]->onMouseMoved(position, transform_stack);
+    event.asPositionalEvent()->getTransformStack().exitCoordSystem();
   }
 
-  transform_stack.exitCoordSystem();
-
-  return Widget::onMouseMoved(position, transform_stack) || handled;
-}
-
-bool WidgetContainer::onMouseReleased(event::MouseKey mouse_button)
-{
-  bool handled = false;
-
-  for (size_t i = 0; i < m_widgets.getSize(); ++i)
-  {
-    handled |= m_widgets[i]->onMouseReleased(mouse_button);
-  }
-
-  return Widget::onMouseReleased(mouse_button) || handled;
-}
-
-bool WidgetContainer::onUpdate(double delta_time)
-{
-  bool handled = false;
-  for (size_t i = 0; i < m_widgets.getSize(); ++i)
-  {
-    handled |= m_widgets[i]->onUpdate(delta_time);
-  }
-
-  return Widget::onUpdate(delta_time) || handled;
+  return handled || Widget::onEvent(event);
 }
 
 void WidgetContainer::draw(sf::RenderTarget&     draw_target,
@@ -78,30 +50,26 @@ void WidgetContainer::draw(sf::RenderTarget&     draw_target,
 
 void WidgetContainer::onLayoutUpdate(const layout::LayoutBox& parent_box)
 {
-  getLayoutBox()->updateParent(parent_box);
+  getLayoutBox().updateParent(parent_box);
   size_t widget_count = m_widgets.getSize();
   for (size_t i = 0; i < widget_count; ++i)
   {
-    m_widgets[i]->onLayoutUpdate(*getLayoutBox());
+    m_widgets[i]->onLayoutUpdate(getLayoutBox());
   }
 }
 
+/*
 bool WidgetContainer::needEventForward(const event::Event& event) const
 {
   size_t type = event.getEventType();
-  if (type == event::EventType::MouseMove || type == event::EventType::Update)
+  if (type == event::EventType::MouseMove || type == event::EventType::Update ||
+      type == event::EventType::MouseButton)
   {
     return false;
   }
-  if (type != event::EventType::MouseButton)
-  {
-    return true;
-  }
 
-  event::KeyState key_state =
-      static_cast<const event::MouseButtonEvent&>(event).buttonState;
-
-  return key_state != event::KeyState::Released;
+  return true;
 }
+*/
 
 } // namespace gui

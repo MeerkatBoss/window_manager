@@ -12,31 +12,40 @@
 #ifndef __GUI_FRAME_H
 #define __GUI_FRAME_H
 
-#include <SFML/Graphics/Texture.hpp>
+#include <SFML/Graphics/Text.hpp>
 
 #include "Event/Event.h"
 #include "GUI/Button.h"
 #include "GUI/Layout/DefaultBox.h"
+#include "GUI/Layout/LayoutBox.h"
+#include "GUI/Layout/Units.h"
 #include "GUI/Widget.h"
 #include "GUI/WidgetContainer.h"
 #include "Math/Transform.h"
 #include "Math/Vec.h"
+
 namespace gui
 {
 
-class Frame : public WidgetContainer, private ButtonController
+class Frame : public Widget, private ButtonController
 {
-  using Base = WidgetContainer;
-
 public:
-  Frame(const layout::Length& width, Widget* widget,
-        const sf::Texture& button_texture);
+  Frame(const layout::Length& width, Widget* widget, const char* title);
 
-  virtual bool onMousePressed(event::MouseKey mouse_button) override;
-  virtual bool onMouseReleased(event::MouseKey mouse_button) override;
+  virtual bool onEvent(const event::Event& event) override;
+
+  virtual bool onMousePressed(const math::Vec&      position,
+                              event::MouseKey       mouse_button,
+                              math::TransformStack& transform_stack) override;
+
+  virtual bool onMouseReleased(const math::Vec&      position,
+                               event::MouseKey       mouse_button,
+                               math::TransformStack& transform_stack) override;
 
   virtual bool onMouseMoved(const math::Vec&      position,
                             math::TransformStack& transform_stack) override;
+
+  virtual void onLayoutUpdate(const layout::LayoutBox& parent_box) override;
 
   virtual void draw(sf::RenderTarget&     draw_target,
                     math::TransformStack& transform_stack) override;
@@ -45,6 +54,13 @@ public:
   virtual void onRelease(size_t) override { m_resizing = false; }
 
 private:
+  void updateTextLayoutBox(void);
+
+  WidgetContainer m_container;
+
+  sf::Text           m_text;
+  layout::DefaultBox m_textLayoutBox;
+
   bool      m_moving;
   bool      m_resizing;
   math::Vec m_lastPos;

@@ -1,66 +1,104 @@
 #include "GUI/Frame.h"
 
 #include <SFML/Graphics/PrimitiveType.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/VertexArray.hpp>
 #include <cstdio>
 
+#include "Assets/AssetManager.h"
+#include "Event/Event.h"
+#include "GUI/Layout/DefaultBox.h"
+#include "GUI/Layout/Units.h"
+#include "GUI/WidgetContainer.h"
 #include "Math/Vec.h"
 
 namespace gui
 {
 
-Frame::Frame(const layout::Length& width, Widget* widget,
-             const sf::Texture& button_texture) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
+Frame::Frame(const layout::Length& width, Widget* widget, const char* title) :
+    Widget(widget->getLayoutBox()),
+    m_container(layout::DefaultBox(100_per, 100_per, layout::Align::Center)),
+    m_text(title, assets::AssetManager::getDefaultFont()),
+    m_textLayoutBox(0_px, width, layout::Align::TopCenter),
     m_moving(false),
     m_resizing(false),
     m_lastPos()
 {
-  layout::DefaultBox* main_box =
-      new layout::DefaultBox(100_per, 100_per, layout::Align::Center);
-  main_box->setPadding(width);
-  widget->setLayoutBox(main_box);
-  addWidget(widget);
+  m_text.setFillColor(sf::Color::White);
 
-  layout::DefaultBox* button_box =
-      new layout::DefaultBox(width, width, layout::Align::BottomRight);
-  Button* resize = new Button(*this, button_texture, button_box);
-  addWidget(resize);
+  layout::DefaultBox main_box(100_per, 100_per, layout::Align::Center);
+  main_box.setPadding(width);
+  widget->setLayoutBox(main_box);
+  m_container.addWidget(widget);
+
+  const sf::Texture& button_texture = assets::AssetManager::getButtonTexture();
+  layout::DefaultBox button_box(width, width, layout::Align::BottomRight);
+  Button*            resize = new Button(*this, button_texture, button_box);
+  m_container.addWidget(resize);
 }
 
-bool Frame::onMousePressed(event::MouseKey mouse_button)
+void Frame::updateTextLayoutBox(void)
 {
-  bool handled = Base::onMousePressed(mouse_button);
-  if (handled)
+  m_textLayoutBox.updateParent(getLayoutBox());
+  const math::Vec text_size = m_textLayoutBox.getSize();
+  m_text.setCharacterSize(text_size.y * .7);
+
+  const double text_width = m_text.getGlobalBounds().width;
+  m_text.setOrigin(text_width / 2, 0);
+  m_text.setPosition(m_textLayoutBox.getPosition());
+}
+
+void Frame::onLayoutUpdate(const layout::LayoutBox& parent_box)
+{
+  getLayoutBox().updateParent(parent_box);
+  m_container.onLayoutUpdate(getLayoutBox());
+  updateTextLayoutBox();
+}
+
+bool Frame::onEvent(const event::Event& event)
+{
+  if (event.isPositionalEvent())
   {
+    event.asPositionalEvent()->getTransformStack().enterCoordSystem(
+        getLocalTransform());
+  }
+  bool handled = m_container.onEvent(event);
+  if (event.isPositionalEvent())
+  {
+    event.asPositionalEvent()->getTransformStack().exitCoordSystem();
+  }
+
+  return handled || Widget::onEvent(event);
+}
+
+bool Frame::onMousePressed(const math::Vec&      position,
+                           event::MouseKey       mouse_button,
+                           math::TransformStack& transform_stack)
+{
+  if (mouse_button == event::MouseKey::Left &&
+      containsPoint(position, transform_stack))
+  {
+    m_moving = true;
     return true;
   }
 
-  if (mouse_button != event::MouseKey::Left || !isFocused())
-    return false;
-
-  m_moving = true;
-
-  return true;
+  return false;
 }
 
-bool Frame::onMouseReleased(event::MouseKey mouse_button)
+bool Frame::onMouseReleased(const math::Vec&, event::MouseKey mouse_button,
+                            math::TransformStack&)
 {
-  bool handled = Base::onMouseReleased(mouse_button);
+  if (mouse_button == event::MouseKey::Left)
+  {
+    m_moving = false;
+  }
 
-  if (mouse_button != event::MouseKey::Left || !m_moving)
-    return handled;
-
-  m_moving = false;
-
-  return true;
+  return false;
 }
 
 bool Frame::onMouseMoved(const math::Vec&      position,
                          math::TransformStack& transform_stack)
 {
-  bool handled = Base::onMouseMoved(position, transform_stack);
-
   transform_stack.enterCoordSystem(getLocalTransform());
 
   const math::Vec local_position =
@@ -73,7 +111,7 @@ bool Frame::onMouseMoved(const math::Vec&      position,
 
   if (m_moving)
   {
-    getLayoutBox()->setPosition(parent_position - m_lastPos);
+    getLayoutBox().setPosition(parent_position - m_lastPos);
 
     return true;
   }
@@ -82,47 +120,42 @@ bool Frame::onMouseMoved(const math::Vec&      position,
   if (m_resizing)
   {
     const math::Vec size = getSize();
-    const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                           getLayoutBox()->getLocalOrigin().y * size.y);
 
-    bool success = getLayoutBox()->setSize(local_position + origin);
+    bool success = getLayoutBox().setSize(local_position);
     if (success)
     {
-      size_t widget_count = getWidgets().getSize();
-      for (size_t i = 0; i < widget_count; ++i)
-      {
-        getWidgets()[i]->onLayoutUpdate(*getLayoutBox());
-      }
+      m_container.onLayoutUpdate(getLayoutBox());
+      updateTextLayoutBox();
     }
     return true;
   }
 
-  return isFocused() || handled;
+  return false;
 }
 
 void Frame::draw(sf::RenderTarget&     draw_target,
                  math::TransformStack& transform_stack)
 {
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] =
-      sf::Vertex(real_transform.transformPoint(tl - origin), sf::Color::Blue);
-  array[1] =
-      sf::Vertex(real_transform.transformPoint(tr - origin), sf::Color::Blue);
-  array[2] =
-      sf::Vertex(real_transform.transformPoint(bl - origin), sf::Color::Blue);
-  array[3] =
-      sf::Vertex(real_transform.transformPoint(br - origin), sf::Color::Blue);
+  array[0] = sf::Vertex(real_transform.transformPoint(tl), sf::Color::Blue);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr), sf::Color::Blue);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl), sf::Color::Blue);
+  array[3] = sf::Vertex(real_transform.transformPoint(br), sf::Color::Blue);
   draw_target.draw(array);
 
-  transform_stack.exitCoordSystem();
+  sf::Text drawn_text = m_text;
+  drawn_text.setScale(real_transform.getScale());
+  drawn_text.setPosition(real_transform.transformPoint(m_text.getPosition()));
+  draw_target.draw(drawn_text);
 
-  Base::draw(draw_target, transform_stack);
+  m_container.draw(draw_target, transform_stack);
+
+  transform_stack.exitCoordSystem();
 }
 
 } // namespace gui

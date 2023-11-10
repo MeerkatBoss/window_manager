@@ -3,67 +3,98 @@
 #include <cstdio>
 #include <math.h>
 
+#include "Event/Event.h"
+#include "Event/Keys.h"
+#include "Math/TransformStack.h"
 #include "Math/Vec.h"
 
 namespace gui
 {
 WidgetView::WidgetView(Widget* widget, double zoom) :
-    WidgetContainer(widget->getLayoutBox()->copy()),
+    Widget(widget->getLayoutBox()),
+    m_widget(widget),
     m_widgetTransform(math::Point(), math::Vec(zoom, zoom))
 {
-  layout::DefaultBox* widget_box = new layout::DefaultBox(
+  layout::DefaultBox widget_box(
       layout::Length(getSize().x, layout::Unit::Pixel),
-      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::Center);
-  widget->setLayoutBox(widget_box);
-  addWidget(widget);
+      layout::Length(getSize().y, layout::Unit::Pixel), layout::Align::Free);
+  m_widget->setLayoutBox(widget_box);
 }
 
 void WidgetView::setViewPosition(const math::Point& position)
 {
   const math::Vec size = getSize();
   const math::Vec widget_size =
-      m_widgetTransform.transformVector(getDecorated()->getSize());
+      m_widgetTransform.transformVector(m_widget->getSize());
 
   const math::Vec unit = size - widget_size;
-  const math::Vec offset(position.x * fabs(unit.x), position.y * fabs(unit.y));
+  const math::Vec offset(
+      (.5 - position.x) * fabs(unit.x) + size.x / 2 - widget_size.x / 2,
+      (.5 - position.y) * fabs(unit.y) + size.y / 2 - widget_size.y / 2);
 
-  m_widgetTransform.setOffset(-offset);
+  m_widgetTransform.setOffset(offset);
 }
 
 math::Point WidgetView::getViewPosition() const
 {
   const math::Vec size = getSize();
   const math::Vec widget_size =
-      m_widgetTransform.transformVector(getDecorated()->getSize());
+      m_widgetTransform.transformVector(m_widget->getSize());
 
   const math::Vec unit   = size - widget_size;
   const math::Vec offset = m_widgetTransform.getOffset();
 
-  return -math::Point(offset.x / fabs(unit.x), offset.y / fabs(unit.y));
+  return math::Point(
+      .5 - (offset.x - size.x / 2 + widget_size.x / 2) / fabs(unit.x),
+      .5 - (offset.y - size.y / 2 + widget_size.y / 2) / fabs(unit.y));
 }
 
-bool WidgetView::onMouseMoved(const math::Vec&      position,
-                              math::TransformStack& transform_stack)
+bool WidgetView::onEvent(const event::Event& event)
 {
-  bool focused = containsPoint(position, transform_stack);
-  if (focused)
+  if (event.getEventType() == event::EventType::MouseMove)
   {
-    focus();
+    return forwardMouseMoved(static_cast<const event::MouseMoveEvent&>(event));
   }
-  else
+  if (event.getEventType() == event::EventType::MouseButton)
   {
-    unfocus();
+    return forwardMouseButton(
+        static_cast<const event::MouseButtonEvent&>(event));
   }
+
+  return m_widget->onEvent(event);
+}
+
+bool WidgetView::forwardMouseMoved(const event::MouseMoveEvent& event)
+{
+  // TODO: clamp position
+  math::TransformStack& transform_stack = event.transform_stack;
 
   transform_stack.enterCoordSystem(getLocalTransform());
   transform_stack.enterCoordSystem(m_widgetTransform);
-
-  bool handled = getDecorated()->onMouseMoved(position, transform_stack);
-
+  bool handled = m_widget->onEvent(event);
   transform_stack.exitCoordSystem();
   transform_stack.exitCoordSystem();
+  return handled;
+}
 
-  return Widget::onMouseMoved(position, transform_stack) || handled;
+bool WidgetView::forwardMouseButton(const event::MouseButtonEvent& event)
+{
+  // TODO: clamp position
+  const math::Vec&      position        = event.position;
+  math::TransformStack& transform_stack = event.transform_stack;
+
+  if (event.buttonState == event::KeyState::Released ||
+      containsPoint(position, transform_stack))
+  {
+    transform_stack.enterCoordSystem(getLocalTransform());
+    transform_stack.enterCoordSystem(m_widgetTransform);
+    bool handled = m_widget->onEvent(event);
+    transform_stack.exitCoordSystem();
+    transform_stack.exitCoordSystem();
+    return handled;
+  }
+
+  return false;
 }
 
 void WidgetView::draw(sf::RenderTarget&     draw_target,
@@ -79,19 +110,18 @@ void WidgetView::draw(sf::RenderTarget&     draw_target,
 
   transform_stack.enterCoordSystem(m_widgetTransform);
   m_viewTexture.clear(sf::Color(100, 100, 100));
-  getDecorated()->draw(m_viewTexture, transform_stack);
+  m_widget->draw(m_viewTexture, transform_stack);
   m_viewTexture.display();
   transform_stack.exitCoordSystem();
 
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
-  const math::Point real_tl = real_transform.transformPoint(tl - origin);
-  const math::Point real_tr = real_transform.transformPoint(tr - origin);
-  const math::Point real_bl = real_transform.transformPoint(bl - origin);
-  const math::Point real_br = real_transform.transformPoint(br - origin);
+  const math::Point real_tl = real_transform.transformPoint(tl);
+  const math::Point real_tr = real_transform.transformPoint(tr);
+  const math::Point real_bl = real_transform.transformPoint(bl);
+  const math::Point real_br = real_transform.transformPoint(br);
 
   sf::VertexArray array(sf::TriangleStrip, 4);
   array[0] = sf::Vertex(real_tl, real_tl);

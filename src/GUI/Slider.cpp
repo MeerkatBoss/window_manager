@@ -23,43 +23,17 @@ static double clamp(double left, double right, double x)
 
 static bool doubleEq(double a, double b) { return fabs(a - b) < 1e-6; }
 
-bool Slider::onMousePressed(event::MouseKey mouse_button)
+math::Vec Slider::getSliderVal(const math::Vec&      position,
+                               math::TransformStack& transform_stack) const
 {
-  if (mouse_button != event::MouseKey::Left || !m_hovered)
-    return false;
-
-  m_captured = true;
-  m_controller.setValue(getId(), m_pendingVal);
-
-  return true;
-}
-
-bool Slider::onMouseReleased(event::MouseKey mouse_button)
-{
-  if (mouse_button != event::MouseKey::Left || !m_captured)
-    return false;
-
-  m_captured = false;
-
-  return true;
-}
-
-bool Slider::onMouseMoved(const math::Vec&      position,
-                          math::TransformStack& transform_stack)
-{
-  m_hovered = containsPoint(position, transform_stack);
-
   transform_stack.enterCoordSystem(getLocalTransform());
 
-  // TODO: Extract to getScaledOrigin
   const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
   const math::Vec handle_size(size.x * m_handleScale.x,
                               size.y * m_handleScale.y);
 
   const math::Vec local_position =
-      transform_stack.getCoordSystem().restorePoint(position) + origin;
+      transform_stack.getCoordSystem().restorePoint(position);
 
   transform_stack.exitCoordSystem();
 
@@ -76,14 +50,45 @@ bool Slider::onMouseMoved(const math::Vec&      position,
   const double x_val = doubleEq(min_x, max_x) ? 0 : x_coord / (max_x - min_x);
   const double y_val = doubleEq(min_y, max_y) ? 0 : y_coord / (max_y - min_y);
 
-  m_pendingVal = math::Vec(x_val, y_val);
+  return math::Vec(x_val, y_val);
+}
 
-  if (m_captured)
+bool Slider::onMousePressed(const math::Vec&      position,
+                            event::MouseKey       mouse_button,
+                            math::TransformStack& transform_stack)
+{
+  if (mouse_button == event::MouseKey::Left &&
+      containsPoint(position, transform_stack))
   {
-    m_controller.setValue(getId(), m_pendingVal);
+    m_captured = true;
+    m_controller.setValue(getId(), getSliderVal(position, transform_stack));
+    return true;
   }
 
-  return m_hovered;
+  return false;
+}
+
+bool Slider::onMouseReleased(const math::Vec&, event::MouseKey mouse_button,
+                             math::TransformStack&)
+{
+  if (mouse_button == event::MouseKey::Left && m_captured)
+  {
+    m_captured = false;
+  }
+
+  return false;
+}
+
+bool Slider::onMouseMoved(const math::Vec&      position,
+                          math::TransformStack& transform_stack)
+{
+  if (m_captured)
+  {
+    m_controller.setValue(getId(), getSliderVal(position, transform_stack));
+    return true;
+  }
+
+  return false;
 }
 
 void Slider::draw(sf::RenderTarget&     draw_target,
@@ -101,17 +106,15 @@ void Slider::drawBackground(sf::RenderTarget&     draw_target,
                             math::TransformStack& transform_stack)
 {
   const sf::Color color(70, 70, 70);
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
-  const math::Vec origin      = layout::getAbsoluteOrigin(getLayoutBox());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Transform& transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] = sf::Vertex(transform.transformPoint(tl - origin), color);
-  array[1] = sf::Vertex(transform.transformPoint(tr - origin), color);
-  array[2] = sf::Vertex(transform.transformPoint(bl - origin), color);
-  array[3] = sf::Vertex(transform.transformPoint(br - origin), color);
-
+  array[0] = sf::Vertex(transform.transformPoint(tl), color);
+  array[1] = sf::Vertex(transform.transformPoint(tr), color);
+  array[2] = sf::Vertex(transform.transformPoint(bl), color);
+  array[3] = sf::Vertex(transform.transformPoint(br), color);
   draw_target.draw(array);
 }
 
@@ -119,9 +122,7 @@ void Slider::drawHandle(sf::RenderTarget&     draw_target,
                         math::TransformStack& transform_stack)
 {
   const sf::Color color(200, 200, 200);
-  const math::Vec size   = getSize();
-  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
-
+  const math::Vec size = getSize();
   const math::Vec handle_size(size.x * m_handleScale.x,
                               size.y * m_handleScale.y);
   const auto [tl, tr, bl, br] = layout::getRect(handle_size);
@@ -138,14 +139,10 @@ void Slider::drawHandle(sf::RenderTarget&     draw_target,
   const math::Transform& transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] =
-      sf::Vertex(transform.transformPoint(tl + handle_pos - origin), color);
-  array[1] =
-      sf::Vertex(transform.transformPoint(tr + handle_pos - origin), color);
-  array[2] =
-      sf::Vertex(transform.transformPoint(bl + handle_pos - origin), color);
-  array[3] =
-      sf::Vertex(transform.transformPoint(br + handle_pos - origin), color);
+  array[0] = sf::Vertex(transform.transformPoint(tl + handle_pos), color);
+  array[1] = sf::Vertex(transform.transformPoint(tr + handle_pos), color);
+  array[2] = sf::Vertex(transform.transformPoint(bl + handle_pos), color);
+  array[3] = sf::Vertex(transform.transformPoint(br + handle_pos), color);
 
   draw_target.draw(array);
 }

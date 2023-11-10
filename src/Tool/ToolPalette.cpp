@@ -5,6 +5,7 @@
 #include "Tool/LineTool.h"
 #include "Tool/PolylineTool.h"
 #include "Tool/RectangleTool.h"
+#include "Tool/TextTool.h"
 
 namespace tool
 {
@@ -16,6 +17,7 @@ ToolPalette::ToolPalette() :
     m_ellipse(new EllipseTool(*this)),
     m_polyline(new PolylineTool(*this)),
     m_fill(new FillTool(*this)),
+    m_text(new TextTool(50, *this)),
     m_fgColor(sf::Color::Black),
     m_bgColor(sf::Color::White),
     m_activeTool(m_brush)
@@ -30,6 +32,7 @@ ToolPalette::~ToolPalette()
   delete m_ellipse;
   delete m_polyline;
   delete m_fill;
+  delete m_text;
 }
 
 } // namespace tool

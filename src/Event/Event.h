@@ -33,12 +33,28 @@ enum EventType
   UserEventTypeMin = 256
 };
 
+class PositionalEvent
+{
+public:
+  virtual const math::Vec&      getPosition(void) const       = 0;
+  virtual math::TransformStack& getTransformStack(void) const = 0;
+
+  virtual ~PositionalEvent() = default;
+};
+
 size_t registerEventType(void);
 
 class Event
 {
 public:
   size_t getEventType() const { return m_eventType; }
+
+  virtual const PositionalEvent* asPositionalEvent(void) const
+  {
+    return nullptr;
+  }
+
+  bool isPositionalEvent(void) const { return asPositionalEvent() != nullptr; }
 
   virtual ~Event() = default;
 
@@ -49,21 +65,41 @@ private:
   const size_t m_eventType;
 };
 
-class MouseButtonEvent : public Event
+class MouseButtonEvent : public Event, public PositionalEvent
 {
 public:
   static const size_t TypeId = MouseButton;
 
-  MouseButtonEvent(KeyState key_state, MouseKey mouse_key) :
-      Event(TypeId), buttonState(key_state), button(mouse_key)
+  MouseButtonEvent(KeyState key_state, MouseKey mouse_key,
+                   const math::Vec&      mouse_position,
+                   math::TransformStack& stack) :
+      Event(TypeId),
+      buttonState(key_state),
+      button(mouse_key),
+      position(mouse_position),
+      transform_stack(stack)
   {
   }
 
-  const KeyState buttonState;
-  const MouseKey button;
+  virtual const math::Vec& getPosition(void) const override { return position; }
+
+  virtual math::TransformStack& getTransformStack(void) const override
+  {
+    return transform_stack;
+  }
+
+  virtual const PositionalEvent* asPositionalEvent(void) const override
+  {
+    return this;
+  }
+
+  const KeyState        buttonState;
+  const MouseKey        button;
+  const math::Vec       position;
+  math::TransformStack& transform_stack;
 };
 
-class MouseMoveEvent : public Event
+class MouseMoveEvent : public Event, public PositionalEvent
 {
 public:
   static const size_t TypeId = MouseMove;
@@ -71,6 +107,18 @@ public:
   MouseMoveEvent(const math::Vec& mouse_position, math::TransformStack& stack) :
       Event(TypeId), position(mouse_position), transform_stack(stack)
   {
+  }
+
+  virtual const math::Vec& getPosition(void) const override { return position; }
+
+  virtual math::TransformStack& getTransformStack(void) const override
+  {
+    return transform_stack;
+  }
+
+  virtual const PositionalEvent* asPositionalEvent(void) const override
+  {
+    return this;
   }
 
   const math::Vec       position;

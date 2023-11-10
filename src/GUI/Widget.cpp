@@ -20,11 +20,8 @@ bool Widget::containsPoint(const math::Point&    point,
 
   const math::Transform& transform = transform_stack.getCoordSystem();
 
-  const math::Vec local_size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * local_size.x,
-                         getLayoutBox()->getLocalOrigin().y * local_size.y);
-
-  const math::Point local_point = transform.restorePoint(point) + origin;
+  const math::Vec   local_size  = getSize();
+  const math::Point local_point = transform.restorePoint(point);
 
   const bool contains = 0 <= local_point.x && local_point.x <= local_size.x &&
                         0 <= local_point.y && local_point.y <= local_size.y;

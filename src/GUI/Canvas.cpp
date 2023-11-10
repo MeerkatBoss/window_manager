@@ -19,47 +19,88 @@ namespace gui
 math::Transform Canvas::getTextureTransform() const
 {
   const math::Vec size = getSize();
-  const math::Vec origin(getLayoutBox()->getLocalOrigin().x * size.x,
-                         getLayoutBox()->getLocalOrigin().y * size.y);
-
   const math::Vec tex_scale(size.x / m_renderTexture.getSize().x,
                             size.y / m_renderTexture.getSize().y);
 
-  return math::Transform(-origin, tex_scale);
+  return math::Transform(math::Vec(), tex_scale);
 }
 
-bool Canvas::onMousePressed(event::MouseKey mouse_button)
+bool Canvas::onEvent(const event::Event& event)
 {
+  Widget* tool_widget = m_palette.getActiveTool()->getWidget();
+  if (tool_widget != nullptr)
+  {
+    bool handled = tool_widget->onEvent(event);
+    if (handled)
+      return true;
+  }
+
+  return Widget::onEvent(event);
+}
+
+bool Canvas::onMousePressed(const math::Vec&      position,
+                            event::MouseKey       mouse_button,
+                            math::TransformStack& transform_stack)
+{
+  if (!containsPoint(position, transform_stack))
+  {
+    return false;
+  }
+
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(getTextureTransform());
+
+  const math::Vec local_position =
+      transform_stack.getCoordSystem().restorePoint(position);
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
+
+  if (mouse_button == event::MouseKey::Left)
+  {
+    m_palette.getActiveTool()->onMainButton(tool::ButtonState::Pressed,
+                                            local_position, *this);
+    m_drawing = true;
+    return true;
+  }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Pressed,
-                                                 m_lastPos, *this);
+                                                 local_position, *this);
+    m_drawing = true;
+    return true;
   }
 
-  if (mouse_button != event::MouseKey::Left || !m_hovered)
-    return false;
-
-  m_palette.getActiveTool()->onMainButton(tool::ButtonState::Pressed, m_lastPos,
-                                          *this);
-
-  return true;
+  return false;
 }
 
-bool Canvas::onMouseReleased(event::MouseKey mouse_button)
+bool Canvas::onMouseReleased(const math::Vec&      position,
+                             event::MouseKey       mouse_button,
+                             math::TransformStack& transform_stack)
 {
+  transform_stack.enterCoordSystem(getLocalTransform());
+  transform_stack.enterCoordSystem(getTextureTransform());
+
+  const math::Vec local_position =
+      transform_stack.getCoordSystem().restorePoint(position);
+  transform_stack.exitCoordSystem();
+  transform_stack.exitCoordSystem();
+
+  if (mouse_button == event::MouseKey::Left)
+  {
+    m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
+                                            local_position, *this);
+    m_drawing = false;
+    return false;
+  }
   if (mouse_button == event::MouseKey::Right)
   {
     m_palette.getActiveTool()->onSecondaryButton(tool::ButtonState::Released,
-                                                 m_lastPos, *this);
+                                                 local_position, *this);
+    m_drawing = false;
+    return false;
   }
 
-  if (mouse_button != event::MouseKey::Left)
-    return false;
-
-  m_palette.getActiveTool()->onMainButton(tool::ButtonState::Released,
-                                          m_lastPos, *this);
-
-  return true;
+  return false;
 }
 
 bool Canvas::onMouseMoved(const math::Vec&      position,
@@ -73,18 +114,9 @@ bool Canvas::onMouseMoved(const math::Vec&      position,
   transform_stack.exitCoordSystem();
   transform_stack.exitCoordSystem();
 
-  double max_x = m_renderTexture.getSize().x;
-  double max_y = m_renderTexture.getSize().y;
+  m_palette.getActiveTool()->onMove(local_position, *this);
 
-  m_hovered = (0 < local_position.x && local_position.x < max_x &&
-               0 < local_position.y && local_position.y < max_y);
-
-  if (m_hovered)
-    m_lastPos = local_position;
-
-  m_palette.getActiveTool()->onMove(m_lastPos, *this);
-
-  return true;
+  return m_drawing;
 }
 
 bool Canvas::onKeyboardPressed(event::KeyboardKey key)
@@ -144,6 +176,39 @@ bool Canvas::onKeyboardPressed(event::KeyboardKey key)
     return true;
   }
 
+  if (m_control && key == KeyboardKey::R)
+  {
+    filter::Filter* filter =
+      m_filters.getFilter(size_t(filter::FilterId::Red));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Red));
+    return true;
+  }
+
+  if (m_control && key == KeyboardKey::G)
+  {
+    filter::Filter* filter =
+      m_filters.getFilter(size_t(filter::FilterId::Green));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Green));
+    return true;
+  }
+
+  if (m_control && key == KeyboardKey::B)
+  {
+    filter::Filter* filter =
+      m_filters.getFilter(size_t(filter::FilterId::Blue));
+
+    filter->applyFilter(*this, m_mask);
+
+    m_filters.setLastFilter(size_t(filter::FilterId::Blue));
+    return true;
+  }
+
   return false;
 }
 
@@ -181,22 +246,20 @@ void Canvas::draw(sf::RenderTarget&     draw_target,
 {
   m_renderTexture.display();
 
-  const auto [tl, tr, bl, br] = layout::getRect(getLayoutBox()->getSize());
+  const auto [tl, tr, bl, br] = layout::getRect(getSize());
 
   const math::Vec tex_size(m_renderTexture.getSize().x,
                            m_renderTexture.getSize().y);
   const auto [tex_tl, tex_tr, tex_bl, tex_br] = layout::getRect(tex_size);
 
-  const math::Vec origin = layout::getAbsoluteOrigin(getLayoutBox());
-
   transform_stack.enterCoordSystem(getLocalTransform());
   const math::Transform& real_transform = transform_stack.getCoordSystem();
 
   sf::VertexArray array(sf::TriangleStrip, 4);
-  array[0] = sf::Vertex(real_transform.transformPoint(tl - origin), tex_tl);
-  array[1] = sf::Vertex(real_transform.transformPoint(tr - origin), tex_tr);
-  array[2] = sf::Vertex(real_transform.transformPoint(bl - origin), tex_bl);
-  array[3] = sf::Vertex(real_transform.transformPoint(br - origin), tex_br);
+  array[0] = sf::Vertex(real_transform.transformPoint(tl), tex_tl);
+  array[1] = sf::Vertex(real_transform.transformPoint(tr), tex_tr);
+  array[2] = sf::Vertex(real_transform.transformPoint(bl), tex_bl);
+  array[3] = sf::Vertex(real_transform.transformPoint(br), tex_br);
   draw_target.draw(array, &m_renderTexture.getTexture());
 
   Widget* tool_widget = m_palette.getActiveTool()->getWidget();
